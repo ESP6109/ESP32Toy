@@ -36,9 +36,6 @@ int settingsicons[1][5] = {247, 94, 123, 188, 65};
 
 // 定义
 /////////////////////////////////////////
-// int button();
-// int joysw();
-
 void home();
 void menu();
 void weather();
@@ -48,7 +45,6 @@ void esp_info();
 void building();
 void manager();
 void power();
-// void test();
 /////////////////////////////////////////
 
 // 初始化
@@ -59,7 +55,6 @@ void setup()
   Serial.begin(115200);
   Serial2.begin(9600);
   u8g2.enableUTF8Print();
-  // test();
   pinMode(2, OUTPUT);
   pinMode(Beep, OUTPUT);
   pinMode(BU, INPUT);
@@ -72,9 +67,7 @@ void setup()
   setCpuFrequencyMhz(80);
   esp_timer.attach(1.0, clccal);
   timer1 = timer2 = millis();
-  // WiFi.begin(ssid[0], pwd[0]);
   clearscr();
-  // manager();
 }
 /////////////////////////////////////////
 
@@ -130,10 +123,6 @@ void menu()
     u8g2.drawGlyph(99, 24, menuicons[b][4]);
     u8g2.setFont(u8g2_font_wqy12_t_gb2312b);
     u8g2.drawRFrame(4 + 23 * (a % 5), 6, 22, 20, 3);
-    /*u8g2.setCursor(0, 8);
-    u8g2.printf("%d", b + 1);
-    u8g2.setCursor(117, 8);
-    u8g2.printf("%d", a + 1);*/
     u8g2.sendBuffer();
     c = b * 5 + (a + 1);
     Serial.println(Button.pressed);
@@ -202,10 +191,6 @@ void settings()
     u8g2.drawGlyph(99, 24, settingsicons[0][4]);
     u8g2.setFont(u8g2_font_wqy12_t_gb2312b);
     u8g2.drawRFrame(4 + 23 * (a % 5), 6, 22, 20, 3);
-    /*u8g2.setCursor(0, 8);
-    u8g2.printf("%d", b + 1);
-    u8g2.setCursor(117, 8);
-    u8g2.printf("%d", a + 1);*/
     u8g2.sendBuffer();
     c = b * 5 + (a + 1);
     if (Switch.pressed)
@@ -259,12 +244,7 @@ void lab()
      u8g2.setCursor(56, 30);
      u8g2.printf("SW-%04d", analogRead(SW));*/
     u8g2.sendBuffer();
-    /*if (analogRead(SW) == 0)
-      analogWrite(2, 255);
-    else
-      analogWrite(2, 0);*/
-    // Serial.printf("%d,%d\n", analogRead(BU), analogRead(SW));
-  }
+   }
   Serial.println(Button.pressed);
   Switch.pressed = 0;
   Button.pressed = 0;
@@ -404,3 +384,4 @@ void power()
   }
 }
 /////////////////////////////////////////
+
