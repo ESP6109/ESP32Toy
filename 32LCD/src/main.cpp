@@ -1,18 +1,14 @@
 // ESP32_LCD_GPS_Project
 // Start at 2024.11.21 16:19:16
-// Build Version 4.0.9
+// Build Version 4.3.8
 // Building
-// Release at 2025.10.11 17:14
+// Release at 2025.10.14 19:03
 #include <Arduino.h>
-#include <u8g2lib.h>
-#include <HTTPClient.h>
-#include <ArduinoJson.h>
 #include "esp32-hal-cpu.h"
 #include <driver/gpio.h>
-#include <Ticker.h>
 
 #include "BuSw.h"
-#include "Counter.h"
+#include "Clock.h"
 #include "DaTi.h"
 #include "GPS.h"
 #include "Joy.h"
@@ -24,14 +20,14 @@
 
 // 主界面图标
 /////////////////////////////////////////
-int menuicons[2][5] =
-    {{184, 93, 124, 129, 209},
-     {240, 92, 240, 141, 235}};
+int menuicons[2][4] =
+    {{124, 209, 93, 129},
+     {92, 240, 141, 235}};
 /////////////////////////////////////////
 
 // 设置图标
 /////////////////////////////////////////
-int settingsicons[1][5] = {247, 94, 123, 188, 65};
+int settingsicons[4] = {247, 94, 123, 188};
 /////////////////////////////////////////
 
 // 定义
@@ -59,13 +55,13 @@ void setup()
   pinMode(Beep, OUTPUT);
   pinMode(BU, INPUT);
   pinMode(SW, INPUT_PULLUP); // z_PULLUP
-  pinMode(X, INPUT);         // x
-  pinMode(Y, INPUT);         // y
+  pinMode(JX, INPUT);        // x
+  pinMode(JY, INPUT);        // y
   attachInterrupt(digitalPinToInterrupt(BU), button, FALLING);
   attachInterrupt(digitalPinToInterrupt(SW), joysw, FALLING);
   esp_sleep_enable_ext0_wakeup(GPIO_NUM_13, 0);
   setCpuFrequencyMhz(80);
-  esp_timer.attach(1.0, clccal);
+  esp_timer.attach(1.0, SecCou);
   timer1 = timer2 = millis();
   clearscr();
 }
@@ -83,14 +79,14 @@ void loop()
 /////////////////////////////////////////
 void home()
 {
-  if (Switch.pressed)
+  if (Switch)
   {
-    Button.pressed = 0;
-    Switch.pressed = 0;
+    Button = 0;
+    Switch = 0;
     menu();
   }
   u8g2.clearBuffer();
-  u8g2.setFont(u8g2_font_helvB12_tf);
+  u8g2.setFont(u8g2_font_helvB12_te);
   u8g2.setCursor(15, 14);
   u8g2.printf("%04d.%02d.%02d-%d\n", Yea, Mon, Day, Wee);
   u8g2.setCursor(30, 30);
@@ -108,61 +104,54 @@ void menu()
   while (d)
   {
     joystick(&a, &b);
-    if (a >= 5 || a <= -1)
+    if (a >= 4 || a <= -1)
     {
-      a = (a + 5) % 5;
+      a = (a + 4) % 4;
       b += 1;
     }
     b = (b + 2) % 2;
-    u8g2.clearBuffer();
-    u8g2.setFont(u8g2_font_open_iconic_all_2x_t);
-    u8g2.drawGlyph(7, 24, menuicons[b][0]);
-    u8g2.drawGlyph(30, 24, menuicons[b][1]);
-    u8g2.drawGlyph(53, 24, menuicons[b][2]);
-    u8g2.drawGlyph(76, 24, menuicons[b][3]);
-    u8g2.drawGlyph(99, 24, menuicons[b][4]);
-    u8g2.setFont(u8g2_font_wqy12_t_gb2312b);
-    u8g2.drawRFrame(4 + 23 * (a % 5), 6, 22, 20, 3);
-    u8g2.sendBuffer();
-    c = b * 5 + (a + 1);
-    Serial.println(Button.pressed);
-    if (Switch.pressed)
+    list4(a, menuicons[b]);
+    c = b * 4 + (a + 1);
+    if (Switch)
     {
-      Switch.pressed = 0;
-      Button.pressed = 0;
+      Switch = 0;
+      Button = 0;
       switch (c)
       {
       case 1:
-        a = b = d = 0;
+        weather();
         break;
       case 2:
-        timerset();
+        gps();
         break;
       case 3:
-        weather();
+        timerset();
         break;
       case 4:
         settings();
         break;
       case 5:
-        gps();
-        break;
-      case 7:
         lab();
         break;
-      case 9:
+      case 7:
         manager();
         break;
-      case 10:
+      case 8:
         power();
         break;
       default:
         building();
       }
     }
+    if (Button)
+    {
+      Button = 0;
+      Switch = 0;
+      a = b = c = d = 0;
+    }
   }
-  Button.pressed = 0;
-  Switch.pressed = 0;
+  Button = 0;
+  Switch = 0;
 }
 /////////////////////////////////////////
 
@@ -170,33 +159,24 @@ void menu()
 /////////////////////////////////////////
 void settings()
 {
-  static int a = 0, b = 0, c = 0;
+  static int a = 0, c = 0;
   int d = 1;
   while (d)
   {
-    joystick(&a, &b);
-    if (a >= 5 || a <= -1)
+    joystick(&a, &Nul);
+    if (a >= 4 || a <= -1)
     {
-      a = (a + 5) % 5;
+      a = (a + 4) % 4;
       // b += 1;
     }
     // b = (b + H_I) % H_I;
-    b = 0;
-    u8g2.clearBuffer();
-    u8g2.setFont(u8g2_font_open_iconic_all_2x_t);
-    u8g2.drawGlyph(7, 24, settingsicons[0][0]);
-    u8g2.drawGlyph(30, 24, settingsicons[0][1]);
-    u8g2.drawGlyph(53, 24, settingsicons[0][2]);
-    u8g2.drawGlyph(76, 24, settingsicons[0][3]);
-    u8g2.drawGlyph(99, 24, settingsicons[0][4]);
-    u8g2.setFont(u8g2_font_wqy12_t_gb2312b);
-    u8g2.drawRFrame(4 + 23 * (a % 5), 6, 22, 20, 3);
-    u8g2.sendBuffer();
-    c = b * 5 + (a + 1);
-    if (Switch.pressed)
+    // b = 0;
+    list4(a, settingsicons);
+    c = a + 1;
+    if (Switch)
     {
-      Button.pressed = 0;
-      Switch.pressed = 0;
+      Button = 0;
+      Switch = 0;
       switch (c)
       {
       case 1:
@@ -208,16 +188,19 @@ void settings()
       case 4:
         esp_info();
         break;
-      case 5:
-        a = b = d = 0;
-        break;
       default:
         building();
       }
     }
+    if (Button)
+    {
+      Button = 0;
+      Switch = 0;
+      a = c = d = 0;
+    }
   }
-  Button.pressed = 0;
-  Switch.pressed = 0;
+  Button = 0;
+  Switch = 0;
 }
 /////////////////////////////////////////
 
@@ -226,17 +209,14 @@ void settings()
 void lab()
 {
   setCpuFrequencyMhz(240);
-  while (!Button.pressed)
+  while (!Button)
   {
-    // Switch.pressed = 0;
-    // Button.pressed = 0;
-    Serial.println(Button.pressed);
     u8g2.clearBuffer();
-    u8g2.setFont(u8g2_font_helvB12_tf);
-    u8g2.setCursor(0, 14);
-    u8g2.printf("X-%04d", analogRead(X));
-    u8g2.setCursor(0, 30);
-    u8g2.printf("Y-%04d", analogRead(Y));
+    u8g2.setFont(u8g2_font_helvB12_te);
+    u8g2.setCursor(4, 22);
+    u8g2.printf("X-%04d", analogRead(JX));
+    u8g2.setCursor(66, 22);
+    u8g2.printf("Y-%04d", analogRead(JY));
     /*u8g2.setCursor(56, 22);
     u8g2.printf("SW-%04d", analogRead(SW));
     u8g2.setCursor(56, 14);
@@ -244,12 +224,10 @@ void lab()
      u8g2.setCursor(56, 30);
      u8g2.printf("SW-%04d", analogRead(SW));*/
     u8g2.sendBuffer();
-   }
-  Serial.println(Button.pressed);
-  Switch.pressed = 0;
-  Button.pressed = 0;
+  }
+  Switch = 0;
+  Button = 0;
   setCpuFrequencyMhz(80);
-  // analogWrite(2, 0);
 }
 /////////////////////////////////////////
 
@@ -257,20 +235,23 @@ void lab()
 /////////////////////////////////////////
 void esp_info()
 {
-  while (!Button.pressed)
+  while (!Button)
   {
     u8g2.clearBuffer();
-    u8g2.setFont(u8g2_font_wqy12_t_gb2312b);
+    u8g2.setFont(u8g2_font_helvB12_te);
+    /*static int i = 0;
+    joystick(&Nul, &i);
+    i %= (i + 2);
     u8g2.setCursor(13, 9);
     u8g2.printf("Built on ESP Tech.");
     u8g2.setCursor(4, 20);
-    u8g2.printf("Designed by ESP6109.");
-    u8g2.setCursor(25, 31);
-    u8g2.printf("Version 4.0.5");
+    u8g2.printf("Designed by ESP6109.");*/
+    u8g2.setCursor(10, 22);
+    u8g2.printf("Version 4.3.8");
     u8g2.sendBuffer();
   }
-  Switch.pressed = 0;
-  Button.pressed = 0;
+  Switch = 0;
+  Button = 0;
 }
 /////////////////////////////////////////
 
@@ -278,15 +259,12 @@ void esp_info()
 /////////////////////////////////////////
 void building()
 {
-  while (!(/*joysw() || */ Button.pressed))
+  while (!Button)
   {
-    u8g2.clearBuffer();
-    u8g2.setFont(u8g2_font_open_iconic_all_2x_t);
-    u8g2.drawGlyph(53, 24, 282);
-    u8g2.sendBuffer();
+    icon(53, 24, 282);
   }
-  Switch.pressed = 0;
-  Button.pressed = 0;
+  Switch = 0;
+  Button = 0;
 }
 /////////////////////////////////////////
 
@@ -302,7 +280,6 @@ void manager()
       j = (j + 1) % 2;
     i = millis() / 1000;
     u8g2.clearBuffer();
-    // u8g2.setFont(u8g2_font_wqy16_t_gb2312);
     u8g2.setFont(u8g2_font_t0_16_mf);
     u8g2.setCursor(10, 10);
     u8g2.printf("Start Manager");
@@ -324,9 +301,10 @@ void manager()
       break;
     }*/
   s_box();
+  clearscr();
   s_shot();
-  Switch.pressed = 0;
-  Button.pressed = 0;
+  Switch = 0;
+  Button = 0;
 }
 /////////////////////////////////////////
 
@@ -334,54 +312,30 @@ void manager()
 /////////////////////////////////////////
 void power()
 {
-  static int a = 0, b = 0, c = 0;
+  static int a = 0, c = 0;
   int d = 1;
   while (d)
   {
-    joystick(&a, &b);
-    if (a >= 5 || a <= -1)
+    joystick(&a, &Nul);
+    if (a >= 2 || a <= -1)
     {
-      a = (a + 5) % 5;
+      a = (a + 2) % 2;
     }
     // b = (b + H_I) % H_I;
-    b = 0;
-    u8g2.clearBuffer();
-    u8g2.setFont(u8g2_font_open_iconic_all_2x_t);
-    u8g2.drawGlyph(7, 24, powericons[0][0]);
-    u8g2.drawGlyph(30, 24, powericons[0][1]);
-    u8g2.drawGlyph(53, 24, powericons[0][2]);
-    u8g2.drawGlyph(76, 24, powericons[0][3]);
-    u8g2.drawGlyph(99, 24, powericons[0][4]);
-    u8g2.setFont(u8g2_font_wqy12_t_gb2312b);
-    u8g2.drawRFrame(4 + 23 * (a % 5), 6, 22, 20, 3);
-    /*u8g2.setCursor(0, 8);
-    u8g2.printf("%d", b + 1);
-    u8g2.setCursor(117, 8);
-    u8g2.printf("%d", a + 1);*/
-    u8g2.sendBuffer();
-    c = b * 5 + (a + 1);
-    if (Switch.pressed)
+    // b = 0;
+    list2(a, powericons);
+    c = a + 1;
+    if (Switch)
     {
-      Switch.pressed = 0;
-      switch (c)
-      {
-      case 1:
-        shutdown();
-        break;
-      case 2:
-        restart();
-        break;
-      case 3:
-        building();
-        break;
-      case 5:
-        a = b = d = 0;
-        break;
-      default:
-        building();
-      }
+      Switch = 0;
+      power(a);
     }
+  }
+  if (Button)
+  {
+    Button = 0;
+    Switch = 0;
+    a = c = d = 0;
   }
 }
 /////////////////////////////////////////
-

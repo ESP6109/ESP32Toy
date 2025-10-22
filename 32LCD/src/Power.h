@@ -8,21 +8,35 @@
 
 // 电源图标
 /////////////////////////////////////////
-int powericons[1][5] = {235, 243, 223, 240, 65};
+int powericons[2] = {235, 243};
 /////////////////////////////////////////
 
+void power(int i);
+
+// 电源
+/////////////////////////////////////////
+void power(int i)
+{
+  icon(53, 24, powericons[i]);
+  delay(500);
+  clearscr();
+  if (i)
+    esp_restart();
+  else
+    esp_deep_sleep_start();
+}
+/////////////////////////////////////////
+
+#endif
+/*
 void restart();
 void shutdown();
-
 // 重置
 /////////////////////////////////////////
 void restart()
 {
-  u8g2.clearBuffer();
-  u8g2.setFont(u8g2_font_open_iconic_all_2x_t);
-  u8g2.drawGlyph(53, 24, powericons[0][1]);
-  u8g2.sendBuffer();
-  delay(750);
+  icon(53, 24, powericons[1]);
+  delay(500);
   clearscr();
   esp_restart();
 }
@@ -32,14 +46,10 @@ void restart()
 /////////////////////////////////////////
 void shutdown()
 {
-  u8g2.clearBuffer();
-  u8g2.setFont(u8g2_font_open_iconic_all_2x_t);
-  u8g2.drawGlyph(53, 24, powericons[0][0]);
-  u8g2.sendBuffer();
-  delay(750);
+  icon(53, 24, powericons[0]);
+  delay(500);
   clearscr();
   esp_deep_sleep_start();
 }
 /////////////////////////////////////////
-
-#endif
+*/

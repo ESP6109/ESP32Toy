@@ -6,6 +6,7 @@
 #include <WiFi.h>
 
 #include "BuSw.h"
+#include "Joystick.h"
 
 // WIFI列表
 /////////////////////////////////////////
@@ -17,7 +18,8 @@ const char *pwd[] = {"k9qb1600"};
 
 //
 /////////////////////////////////////////
-int W_con = 0;
+// int W_con = 0;
+int wifiicons[2] = {64, 197};
 /////////////////////////////////////////
 
 void WIFIconnect();
@@ -26,42 +28,86 @@ void WIFIconnect();
 /////////////////////////////////////////
 void WIFIconnect()
 {
+    static int a = 0, c = 0;
+    int d = 0;
+    int t = 0;
     setCpuFrequencyMhz(240);
-    while (!Button.pressed)
+    Button = 0;
+    Switch = 0;
+    t = millis();
+    while (WiFi.status() != WL_CONNECTED)
     {
-        if (!W_con)
-            WiFi.begin(ssid[0], pwd[0]);
-        while (WiFi.status() != WL_CONNECTED && !Button.pressed)
+        WiFi.begin(ssid[0], pwd[0]);
+        icon(53, 24, 247);
+        delay(50);
+        if (Button)
         {
-            u8g2.clearBuffer();
-            u8g2.setFont(u8g2_font_open_iconic_all_2x_t);
-            u8g2.drawGlyph(53, 24, 247);
-            u8g2.sendBuffer();
-            delay(500);
+            Button = 0;
+            return;
         }
-        if (WiFi.status() == WL_CONNECTED)
-            W_con = 1;
+        if (millis() - t >= 300000)
+        {
+            icon(53, 24, 283);
+            delay(500);
+            return;
+        }
+    }
+    if (WiFi.status() == WL_CONNECTED)
+        d = 1;
+    Button = 0;
+    Switch = 0;
+    while (!(Button || Switch))
+    {
         u8g2.clearBuffer();
-        u8g2.setFont(u8g2_font_helvB12_tf);
+        u8g2.setFont(u8g2_font_helvB12_te);
         u8g2.setCursor(1, 22);
         u8g2.println(WiFi.localIP());
         u8g2.sendBuffer();
     }
-    Button.pressed = 0;
-    Switch.pressed = 0;
-    setCpuFrequencyMhz(80);
+    while (d)
+    {
+        Button = 0;
+        Switch = 0;
+        joystick(&a, &Nul);
+        if (a >= 2 || a <= -1)
+        {
+            a = (a + 2) % 2;
+        }
+        // b = (b + H_I) % H_I;
+        // b = 0;
+        c = a + 1;
+        list2(a, wifiicons);
+        if (Switch)
+        {
+            if (a)
+                WiFi.disconnect();
+            a = c = d = 0;
+            Button = 0;
+            Switch = 0;
+            return;
+        }
+        else if (Button)
+        {
+            Button = 0;
+            Switch = 0;
+            return;
+        }
+    }
 }
 /////////////////////////////////////////
 
 #endif
 
-/*u8g2.clearBuffer();
-        u8g2.setFont(u8g2_font_helvB12_tf);
-        u8g2.setCursor(0, 14);
-        u8g2.printf("X-%04d", analogRead(14));
-        u8g2.setCursor(0, 30);
-        u8g2.printf("Y-%04d", analogRead(26));
-        u8g2.sendBuffer();
-        u8g2.clearBuffer();
-        u8g2.setFont(u8g2_font_helvB12_tf);
-        u8g2.setCursor(0, 22);*/
+/*Button = 0;
+Switch = 0;
+switch (c)
+        {
+        case 1:
+            a = c = d = 0;
+            Button = 0;
+            Switch = 0;
+            return;
+        case 2:
+
+
+setCpuFrequencyMhz(80);*/

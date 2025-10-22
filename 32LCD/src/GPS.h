@@ -5,6 +5,7 @@
 #include <TinyGPS++.h>
 #include <TinyGPSPlus.h>
 #include <HardwareSerial.h>
+
 #include "DaTi.h"
 #include "LCD.h"
 
@@ -43,10 +44,10 @@ void gps()
 {
   int a = 0;
   setCpuFrequencyMhz(240);
-  while (!Button.pressed)
+  while (!Button)
   {
     gpsget();
-    joystick(&a, NULL);
+    joystick(&a, &Nul);
     a = a + 4;
     a %= 4;
     if (Ava[0] == 'V') // 无效
@@ -61,8 +62,8 @@ void gps()
     }
     gpsdisplay(a);
   }
-  Switch.pressed = 0;
-  Button.pressed = 0;
+  Switch = 0;
+  Button = 0;
   setCpuFrequencyMhz(80);
   G_t = 0;
   digitalWrite(2, 0);
@@ -73,12 +74,11 @@ void gps()
 /////////////////////////////////////////
 void gpsget()
 {
-  for (unsigned long m = millis(); millis() - m <= 500;)
+  for (unsigned long m = millis(); millis() - m <= 300;)
   {
     while (Serial2.available())
     {
       GPS.encode(Serial2.read());
-      // Serial.printf("%c",Serial2.read());
     }
   }
   gpsdata();
@@ -89,18 +89,22 @@ void gpsget()
 /////////////////////////////////////////
 void gpsdata()
 {
-  Yea = GPS.date.year();   // 年
-  Mon = GPS.date.month();  // 月
-  Day = GPS.date.day();    // 日
-  Hou = GPS.time.hour();   // 时
-  Min = GPS.time.minute(); // 分
-  Sec = GPS.time.second(); // 秒
-  Hou += 8;
-  Lng = GPS.location.lng(); // 经度
-  Lat = GPS.location.lat(); // 纬度
-  Spe = GPS.speed.kmph();   // 速度
-  Deg = GPS.course.deg();   // 方向角
   strcpy(Ava, A.value());
+  if (!N_t && (Ava[0] == 'A'))
+  {
+    Yea = GPS.date.year();   // 年
+    Mon = GPS.date.month();  // 月
+    Day = GPS.date.day();    // 日
+    Hou = GPS.time.hour();   // 时
+    Min = GPS.time.minute(); // 分
+    Sec = GPS.time.second(); // 秒
+    Hou += 8;
+    clccal();
+  }
+  Lng = GPS.location.lng();                               // 经度
+  Lat = GPS.location.lat();                               // 纬度
+  Spe = GPS.speed.kmph();                                 // 速度
+  Deg = GPS.course.deg();                                 // 方向角
   if ((Deg > 338 && Deg < 360) || (Deg >= 0 && Deg < 22)) // N
   {
     strcpy(Cou, "N");
@@ -145,7 +149,7 @@ void gpsdisplay(int s)
   case 0:
   {
     u8g2.clearBuffer();
-    u8g2.setFont(u8g2_font_helvB12_tr);
+    u8g2.setFont(u8g2_font_helvB12_te);
     u8g2.setCursor(2, 14);
     u8g2.printf("%02d.%02d.%02d-%d\n", (Yea % 100), Mon, Day, Wee);
     u8g2.setCursor(10, 30);
@@ -175,7 +179,7 @@ void gpsdisplay(int s)
   case 1:
   {
     u8g2.clearBuffer();
-    u8g2.setFont(u8g2_font_helvB12_tr);
+    u8g2.setFont(u8g2_font_helvB12_te);
     u8g2.setCursor(15, 14);
     u8g2.printf("%4d.%02d.%02d-%d\n", Yea, Mon, Day, Wee);
     u8g2.setCursor(30, 30);
@@ -186,7 +190,7 @@ void gpsdisplay(int s)
   case 2:
   {
     u8g2.clearBuffer();
-    u8g2.setFont(u8g2_font_helvB12_tr);
+    u8g2.setFont(u8g2_font_helvB12_te);
     if (int(Lat) >= 10 && int(Lat) <= 99)
       u8g2.setCursor(10, 14);
     else
@@ -209,14 +213,14 @@ void gpsdisplay(int s)
   case 3:
   {
     u8g2.clearBuffer();
-    u8g2.setFont(u8g2_font_helvB12_tf);
+    u8g2.setFont(u8g2_font_helvB12_te);
     u8g2.setCursor(1, 30);
     u8g2.printf("%s", Cou);
     u8g2.setCursor(1, 14);
     u8g2.printf("%d\n", Deg);
     u8g2.setFont(u8g2_font_logisoso32_tn);
     u8g2.setCursor(63, 32);
-    u8g2.printf("%03d\n", Spe);
+    u8g2.printf("%3d\n", Spe);
     u8g2.sendBuffer();
     break;
   }

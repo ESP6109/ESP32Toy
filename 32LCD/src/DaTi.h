@@ -3,8 +3,8 @@
 
 #include <Arduino.h>
 #include <Ticker.h>
-#include <HTTPClient.h>
-#include <ArduinoJson.h>
+
+#include "Http.h"
 #include "WIFIset.h"
 
 // 日期与时间
@@ -12,30 +12,36 @@
 int Yea = 1970, Mon = 1, Day = 1; // 年月日
 int Hou = 8, Min = 0, Sec = 0;    // 时分秒
 int Wee = 1;                      // 星期
-int sum[14];
-char week[1];
 Ticker esp_timer;                 // 时钟计时
+bool N_t = 0;                     // 接入网络时间
 bool G_t = 0;                     // 接入卫星时间
+int C_h = 0, C_m = 0;
+int Clset = 0;
 /////////////////////////////////////////
 
-// HTTP
-/////////////////////////////////////////
-String url = "http://api.k780.com/?app=life.time&appkey=10003&sign=b59bc3ef6191eb9f747dd4e83c99f2a4&format=json";
-JsonDocument doc;
-
-/////////////////////////////////////////
-
+void SecCou();
 void clccal();
 void clksets();
 void NetDT();
+
+// 秒针走时
+/////////////////////////////////////////
+void SecCou()
+{
+  if (!G_t)
+    Sec = Sec + 1;
+  clccal();
+  // if (Clset && Hou == C_h && Min == C_m)
+    // ring(1);
+}
+/////////////////////////////////////////
 
 // 日历与时钟
 /////////////////////////////////////////
 void clccal()
 {
   //   timer();
-  if (!G_t)
-    Sec = Sec + 1;
+
   if (Sec > 59)
   {
     Sec = 0;
@@ -93,7 +99,8 @@ void clccal()
 /////////////////////////////////////////
 void clksets()
 {
-  int a = 0, b = 0;
+  NetDT();
+  /*int a = 0, b = 0;
   while (!Button.pressed)
   {
     joystick(NULL, &b);
@@ -113,72 +120,62 @@ void clksets()
     u8g2.sendBuffer();
   }
   Switch.pressed = 0;
-  Button.pressed = 0;
+  Button.pressed = 0;*/
 }
 /////////////////////////////////////////
 
+// 互联网校时
 /////////////////////////////////////////
-void net()
+void NetDT()
 {
-  // LCD(45, 32, 198);
-  int r = 0;
+  if (WiFi.status() != WL_CONNECTED)
+  {
+    icon(53, 24, 283);
+    delay(300);
+    return;
+  }
+  icon(53, 24, 198);
   delay(10);
   setCpuFrequencyMhz(240);
   HTTPClient http;
-  http.begin(url);
+  http.begin(nettime);
   http.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36");
   int httpCode = 0;
   httpCode = http.GET();
-  Serial.print("get");
-  delay(1000);
+  delay(200);
   if (httpCode > 0)
   {
     if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_FOUND)
     {
-      // l1 = false;
-      // l2 = true;
       String result = http.getString();
-      Serial.println(result);
       deserializeJson(doc, result);
-      String a = doc["result"]["datetime_2"]; // 日期时间
-      String w = doc["result"]["week_1"];     // 星期
-      const char *t = a.c_str();
-      const char *get_week = w.c_str();
-      // week[0] = get_week[0];
-      if (week[0] - 48 == 0)
-        week[0] = 55;
-      doc.clear();
-      http.end();
-      setCpuFrequencyMhz(80);
-      // Serial.println(a);
-      for (int i = 0; i < strlen(t); ++i)
-      {
-        if (t[i] >= '0' && t[i] <= '9')
-        {
-          sum[r] = t[i] - 48;
-          ++r;
-        }
-      }
-      Day = sum[6] * 10 + sum[7];
-      Mon = sum[4] * 10 + sum[5];
-      Yea = sum[0] * 1000 + sum[1] * 100 + sum[2] * 10 + sum[3];
-      Sec = sum[12] * 10 + sum[13] + 1;
-      Min = sum[10] * 10 + sum[11];
-      Hou = sum[8] * 10 + sum[9];
-      Wee=week[0]-48;
-      return;
-    }
-    else // if (httpCode != HTTP_CODE_OK || httpCode != HTTP_CODE_FOUND)
-    {
-      // l1 = true;
-      // l2 = false;
-      delay(5000);
-      Serial.print("failed");
-      return;
+      String date = doc["result"]["datetime_1"]; // 日期时间
+      String week = doc["result"]["week_1"];     // 星期
+      const char *tempdt = date.c_str();
+      const char *tempwe = week.c_str();
+      Serial.println(tempdt);
+      Yea = (tempdt[0] - 48) * 1000 + (tempdt[1] - 48) * 100 + (tempdt[2] - 48) * 10 + (tempdt[3] - 48);
+      Mon = (tempdt[5] - 48) * 10 + (tempdt[6] - 48);
+      Day = (tempdt[8] - 48) * 10 + (tempdt[9] - 48);
+      Hou = (tempdt[11] - 48) * 10 + (tempdt[12] - 48);
+      Min = (tempdt[14] - 48) * 10 + (tempdt[15] - 48);
+      Sec = (tempdt[17] - 48) * 10 + (tempdt[18] - 48) + 1;
+      if (tempwe[0] - 48)
+        Wee = tempwe[0] - 48;
+      else
+        Wee = 7;
+      N_t = 1;
+      icon(53, 24, 115);
+      delay(500);
     }
   }
-  // l1 = true;
-  // l2 = false;
+  else
+  {
+    icon(53, 24, 283);
+    delay(500);
+  }
+  Switch = 0;
+  doc.clear();
   http.end();
   setCpuFrequencyMhz(80);
 }

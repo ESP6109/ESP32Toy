@@ -3,16 +3,19 @@
 
 #include <Arduino.h>
 
-void joystick(int *, int *);
-
 // 摇杆接口
 /////////////////////////////////////////
 //(0,0)
 //              (4095,4095)
 // GND
 // 5V(3.3V)
-#define X 34
-#define Y 32
+#define JX 34
+#define JY 32
+/////////////////////////////////////////
+
+//空指针
+/////////////////////////////////////////
+int Nul = 0;
 /////////////////////////////////////////
 
 // 计时
@@ -20,12 +23,14 @@ void joystick(int *, int *);
 int timer1, timer2; // 摇杆计时
 /////////////////////////////////////////
 
+void joystick(int *, int *);
+
 // 摇杆
 /////////////////////////////////////////
 void joystick(int *C_x, int *C_y)
 {
-  int VRX = analogRead(X);
-  int VRY = analogRead(Y);
+  int VRX = analogRead(JX);
+  int VRY = analogRead(JY);
   // int VSW = analogRead(SW);//!!!!
   if (millis() - timer1 >= 250)
   {
