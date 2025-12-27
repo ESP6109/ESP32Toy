@@ -1,41 +1,17 @@
-#ifndef Clock_h
-#define Clock_h
-
-#include <Arduino.h>
-
-#include "LCD.h"
-#include "BuSw.h"
-#include "Joystick.h"
-#include "DaTi.h"
+#include "Clock.h"
 
 // 定时器
 /////////////////////////////////////////
-extern bool reset; // 定时器重置
-extern bool r;     // 蜂鸣器
+bool reset = 0; // 定时器重置
+bool r = 1;     // 蜂鸣器
 /////////////////////////////////////////
 
 //
 /////////////////////////////////////////
-extern int clockicons[];
-extern int countericons[];
+int clockicons[3] = {123, 269, 93};
+int countericons[2] = {233, 243};
 /////////////////////////////////////////
 
-// 蜂鸣器接口
-/////////////////////////////////////////
-#define Beep 33
-/////////////////////////////////////////
-
-void clockset();
-void timerset();
-void counterset();
-int count(int, int, int);
-void cpause();
-void ring(int);
-void timer();
-
-#endif
-
-/*
 //
 /////////////////////////////////////////
 void timerset()
@@ -133,7 +109,7 @@ void clockset()
       reset = 0;
       h = m = s = 0;
       a = 0;
-    }
+    }*/
   }
   Switch = 0;
   Button = 0;
@@ -351,10 +327,9 @@ void timer()
 {
   ;
   /*analogWrite(33, 0);
-  analogWrite(25, 0);
+  analogWrite(25, 0);*/
 }
 /////////////////////////////////////////
-*/
 
 /*u8g2.drawBox(29 + 23 * a, 4, 17, 4);
 u8g2.drawBox(29 + 23 * a, 22, 17, 4);

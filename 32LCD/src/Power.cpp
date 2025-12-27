@@ -1,21 +1,11 @@
-#ifndef Power_h
-#define Power_h
-
-#include <Arduino.h>
-#include "esp_system.h"
-#include "esp_sleep.h"
-#include "LCD.h"
+#include "Power.h"
 
 // 电源图标
 /////////////////////////////////////////
-extern int powericons[];
+int powericons[2] = {235, 243};
 /////////////////////////////////////////
 
-void power(int i);
-
-#endif
-
-/*// 电源
+// 电源
 /////////////////////////////////////////
 void power(int i)
 {
@@ -28,8 +18,15 @@ void power(int i)
     esp_deep_sleep_start();
 }
 /////////////////////////////////////////
-*/
 
+/*#ifndef Power_h
+#define Power_h
+
+#include <Arduino.h>
+#include "esp_system.h"
+#include "esp_sleep.h"
+#include "LCD.h"*/
+// #endif
 /*
 void restart();
 void shutdown();

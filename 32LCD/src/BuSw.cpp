@@ -1,24 +1,13 @@
-#ifndef BuSw_h
-#define BuSw_h
-
-#include <Arduino.h>
+#include "BuSw.h"
 
 // 按键接口
 /////////////////////////////////////////
-#define BU 0
-#define SW 13
-
-extern int Button;
-extern int Switch;
-extern unsigned long ST1, ST2;
-extern unsigned long BT1, BT2;
+int Button = 0;
+int Switch = 0;
+unsigned long ST1 = 0, ST2 = 0;
+unsigned long BT1 = 0, BT2 = 0;
 /////////////////////////////////////////
 
-void IRAM_ATTR button();
-void IRAM_ATTR joysw();
-#endif
-
-/*
 // 按键IO0
 /////////////////////////////////////////
 void IRAM_ATTR button()
@@ -44,5 +33,3 @@ void IRAM_ATTR joysw()
     }
 }
 /////////////////////////////////////////
-
-*/

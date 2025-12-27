@@ -1,36 +1,13 @@
-#ifndef Gps_h
-#define GPS_h
 
-#include <Arduino.h>
-#include <TinyGPS++.h>
-#include <TinyGPSPlus.h>
-#include <HardwareSerial.h>
-
-#include "DaTi.h"
-#include "LCD.h"
-
-// GPS接口
-/////////////////////////////////////////
-// Serial2
-#define TX 17
-#define RX 16
-/////////////////////////////////////////
-
-// 定位
-/////////////////////////////////////////
-static TinyGPSPlus GPS;
-static TinyGPSCustom A(GPS, "GPRMC", 2);  // 有效值
-static TinyGPSCustom NS(GPS, "GPRMC", 4); // 南北
-static TinyGPSCustom WE(GPS, "GPRMC", 6); // 东西
-/////////////////////////////////////////
+#include <GPS.h>
 
 // 定位数据
 /////////////////////////////////////////
-extern float Lng, Lat; // 经纬
-extern int Spe;        // 速度
-extern int Deg;        // 方向角
-extern char Cou[];     // 方向
-extern char Ava[];     // 有效值
+float Lng = 0, Lat = 0; // 经纬
+int Spe = 0;            // 速度
+int Deg = 0;            // 方向角
+char Cou[3];            // 方向
+char Ava[2];            // 有效值
 /////////////////////////////////////////
 
 void gps();
@@ -38,12 +15,11 @@ void gpsget();
 void gpsdata();
 void gpsdisplay(int);
 
-#endif
-/*
 // 定位
 /////////////////////////////////////////
 void gps()
 {
+  Serial2.begin(9600);
   int a = 0;
   setCpuFrequencyMhz(240);
   while (!Button)
@@ -68,7 +44,8 @@ void gps()
   Button = 0;
   setCpuFrequencyMhz(80);
   G_t = 0;
-  digitalWrite(2, 0);
+  digitalWrite(2, 0);  
+  Serial2.end();
 }
 /////////////////////////////////////////
 
@@ -151,7 +128,7 @@ void gpsdisplay(int s)
   case 0:
   {
     u8g2.clearBuffer();
-    u8g2.setFont(u8g2_font_helvB12_tr);
+    u8g2.setFont(u8g2_font_helvB12_te);
     u8g2.setCursor(2, 14);
     u8g2.printf("%02d.%02d.%02d-%d\n", (Yea % 100), Mon, Day, Wee);
     u8g2.setCursor(10, 30);
@@ -183,7 +160,7 @@ void gpsdisplay(int s)
   case 1:
   {
     u8g2.clearBuffer();
-    u8g2.setFont(u8g2_font_helvB12_tr);
+    u8g2.setFont(u8g2_font_helvB12_te);
     u8g2.setCursor(15, 14);
     u8g2.printf("%4d.%02d.%02d-%d\n", Yea, Mon, Day, Wee);
     u8g2.setCursor(30, 30);
@@ -198,7 +175,7 @@ void gpsdisplay(int s)
   case 2:
   {
     u8g2.clearBuffer();
-    u8g2.setFont(u8g2_font_helvB12_tr);
+    u8g2.setFont(u8g2_font_helvB12_te);
     if (int(Lat) >= 10 && int(Lat) <= 99)
       u8g2.setCursor(10, 14);
     else
@@ -221,7 +198,7 @@ void gpsdisplay(int s)
   case 3:
   {
     u8g2.clearBuffer();
-    u8g2.setFont(u8g2_font_helvB12_tr);
+    u8g2.setFont(u8g2_font_helvB12_te);
     u8g2.setCursor(1, 30);
     u8g2.printf("%s", Cou);
     u8g2.setCursor(1, 14);
@@ -236,4 +213,3 @@ void gpsdisplay(int s)
 }
 /////////////////////////////////////////
 
-*/

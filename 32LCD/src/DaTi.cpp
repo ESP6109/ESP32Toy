@@ -1,32 +1,17 @@
-#ifndef DaTi_h
-#define DaTi_h
-
-#include <Arduino.h>
-#include <Ticker.h>
-
-#include "Http.h"
-#include "WIFIset.h"
+#include "DaTi.h"
 
 // 日期与时间
 /////////////////////////////////////////
-static Ticker esp_timer;                 // 时钟计时
-extern int Yea , Mon, Day ; // 年月日
-extern int Hou , Min, Sec ;    // 时分秒
-extern int Wee ;                      // 星期
-extern bool N_t ;                     // 接入网络时间
-extern bool G_t;                     // 接入卫星时间
-extern int C_h, C_m;
-extern int Clset;
+int Yea = 1970, Mon = 1, Day = 1; // 年月日
+int Hou = 8, Min = 0, Sec = 0;    // 时分秒
+int Wee = 1;                      // 星期
+// Ticker esp_timer;                 // 时钟计时
+bool N_t = 0;                     // 接入网络时间
+bool G_t = 0;                     // 接入卫星时间
+int C_h = 0, C_m = 0;
+int Clset = 0;
 /////////////////////////////////////////
 
-void SecCou();
-void clccal();
-void clksets();
-void NetDT();
-
-#endif
-
-/*
 // 秒针走时
 /////////////////////////////////////////
 void SecCou()
@@ -94,7 +79,7 @@ void clccal()
     Wee = (Day + 2 * Mon + 3 * (Mon + 1) / 5 + Yea + Yea / 4 - Yea / 100 + Yea / 400) % 7;
   Wee++;
   /*if (Hou == 17 && Min == 7)
-    ring();*//*
+    ring();*/
 }
 /////////////////////////////////////////
 
@@ -123,7 +108,7 @@ void clksets()
     u8g2.sendBuffer();
   }
   Switch.pressed = 0;
-  Button.pressed = 0;*//*
+  Button.pressed = 0;*/
 }
 /////////////////////////////////////////
 
@@ -183,5 +168,3 @@ void NetDT()
   setCpuFrequencyMhz(80);
 }
 /////////////////////////////////////////
-
-*/

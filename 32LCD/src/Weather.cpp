@@ -1,54 +1,29 @@
-#ifndef Weather_h
-#define Weather_h
-
-#include <Arduino.h>
-#include <HTTPClient.h>
-#include <ArduinoJson.h>
-
-#include "BuSW.h"
-#include "Http.h"
-#include "LCD.h"
-#include "WIFIset.h"
-
-struct Weather
-{
-  int MaxT;
-  int MinT;
-  int IcCo;
-  int Icon;
-
-};
-
-
+#include "Weather.h"
 
 // 温湿度
 /////////////////////////////////////////
-extern int Tem , Hum;
-extern int MaxT[] ;
-extern int MinT[] ;
+int Tem = 0, Hum = 0;
+int MaxT[3] = {0, 0, 0};
+int MinT[3] = {0, 0, 0};
 /////////////////////////////////////////
 
 // 日期
 /////////////////////////////////////////
-extern int Date[] ;
+int Date[3] = {0, 0, 0};
 /////////////////////////////////////////
 
 // 天气图标
 /////////////////////////////////////////
-extern int weathericons[][5];
-extern int IcCo[] ;
-extern int Icon[] ;
+int weathericons[3][5] =
+    {
+        {69, 66, 64, 65, 67},      // 日晴 夜晴 阴 多云 雨
+        {259, 223, 127, 124, 241}, // 日晴 夜晴 阴 多云 雨
+        {259, 223, 127, 124, 241}, // 日晴 夜晴 阴 多云 雨
+};
+int IcCo[3] = {0, 0, 0};
+int Icon[3] = {0, 0, 0};
 /////////////////////////////////////////
 
-void weather();
-void weadisplay(int);
-void weaicons(int);
-void WeatherNow();
-void WeatherDaily();
-
-#endif
-
-/*
 // 天气
 /////////////////////////////////////////
 void weather()
@@ -99,14 +74,14 @@ void weather()
 /////////////////////////////////////////
 void weadisplay(int s)
 {
-  //
+  u8g2.enableUTF8Print();
   switch (s)
   {
   case 0:
   {
     weaicons(0);
     u8g2.clearBuffer();
-    u8g2.setFont(u8g2_font_helvB12_tr);
+    u8g2.setFont(u8g2_font_helvB12_te);
     if (MaxT[0] <= -10)
       u8g2.setCursor(1, 14);
     else if (MaxT[0] >= -9 && MaxT[0] <= -1)
@@ -116,6 +91,7 @@ void weadisplay(int s)
     else
       u8g2.setCursor(6, 14);
     u8g2.printf("%d°C", MaxT[0]);
+    // u8g2.drawUTF8(24, 14, "°C");
     if (MinT[0] <= -10)
       u8g2.setCursor(1, 30);
     else if (MinT[0] >= -9 && MinT[0] <= -1)
@@ -151,7 +127,7 @@ void weadisplay(int s)
     for (int i = 0; i < 2; ++i)
     {
       weaicons(i + 1);
-      u8g2.setFont(u8g2_font_helvB12_tr);
+      u8g2.setFont(u8g2_font_helvB12_te);
       if (MaxT[i + 1] <= -10)
         u8g2.setCursor(31 + i * 62, 14);
       else if (MaxT[i + 1] <= -1 && MaxT[i + 1] >= -9)
@@ -298,8 +274,6 @@ void WeatherDaily()
   doc.clear();
 }
 /////////////////////////////////////////
-*/
-
 
 // Switch  = 0;
 // Button  = 0;

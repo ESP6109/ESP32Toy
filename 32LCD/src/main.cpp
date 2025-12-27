@@ -1,22 +1,10 @@
 // ESP32_LCD_GPS_Project
 // Start at 2024.11.21 16:19:16
-// Build Version 4.3.8
+// Build Version 4.4.8
 // Building
-// Release at 2025.10.14 19:03
-#include <Arduino.h>
-#include "esp32-hal-cpu.h"
-#include <driver/gpio.h>
+// Release at 2025.11.13 15:36
 
-#include "BuSw.h"
-#include "Clock.h"
-#include "DaTi.h"
-#include "GPS.h"
-#include "Joy.h"
-#include "Joystick.h"
-#include "LCD.h"
-#include "Power.h"
-#include "Weather.h"
-#include "WIFIset.h"
+#include "main.h"
 
 // 主界面图标
 /////////////////////////////////////////
@@ -30,26 +18,12 @@ int menuicons[2][4] =
 int settingsicons[4] = {247, 94, 123, 188};
 /////////////////////////////////////////
 
-// 定义
-/////////////////////////////////////////
-void home();
-void menu();
-void weather();
-void settings();
-void lab();
-void esp_info();
-void building();
-void manager();
-void power();
-/////////////////////////////////////////
-
 // 初始化
 /////////////////////////////////////////
 void setup()
 {
   u8g2.begin();
   Serial.begin(115200);
-  Serial2.begin(9600);
   u8g2.enableUTF8Print();
   pinMode(2, OUTPUT);
   pinMode(Beep, OUTPUT);
@@ -90,7 +64,11 @@ void home()
   u8g2.setCursor(15, 14);
   u8g2.printf("%04d.%02d.%02d-%d\n", Yea, Mon, Day, Wee);
   u8g2.setCursor(30, 30);
-  u8g2.printf("%02d:%02d:%02d\n", Hou, Min, Sec);
+  u8g2.printf("%02d %02d %02d\n", Hou, Min, Sec);
+  u8g2.setCursor(47, 28);
+  u8g2.printf(":");
+  u8g2.setCursor(70, 28);
+  u8g2.printf(":");
   u8g2.sendBuffer();
 }
 /////////////////////////////////////////
@@ -247,7 +225,7 @@ void esp_info()
     u8g2.setCursor(4, 20);
     u8g2.printf("Designed by ESP6109.");*/
     u8g2.setCursor(10, 22);
-    u8g2.printf("Version 4.3.8");
+    u8g2.printf("Version 4.4.8");
     u8g2.sendBuffer();
   }
   Switch = 0;
@@ -339,3 +317,31 @@ void power()
   }
 }
 /////////////////////////////////////////
+
+/*#include <Arduino.h>
+#include "esp32-hal-cpu.h"
+#include <driver/gpio.h>
+
+#include "BuSw.h"
+#include "Clock.h"
+#include "DaTi.h"
+#include "GPS.h"
+#include "Joy.h"
+#include "Joystick.h"
+#include "LCD.h"
+#include "Power.h"
+#include "Weather.h"
+#include "WIFIset.h"*/
+/*
+// 定义
+/////////////////////////////////////////
+void home();
+void menu();
+void weather();
+void settings();
+void lab();
+void esp_info();
+void building();
+void manager();
+void power();
+/////////////////////////////////////////*/
