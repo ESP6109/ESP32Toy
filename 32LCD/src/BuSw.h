@@ -5,17 +5,26 @@
 
 // 按键接口
 /////////////////////////////////////////
-#define BU 0
-#define SW 13
+#define LED 8
+#define BGL 10
+#define BUTTON 9
+#define LEFT 0
+#define MIDDLE 1
+#define RIGHT 2
 
 extern int Button;
 extern int Switch;
+extern int Left, Middle, Right;
 extern unsigned long ST1, ST2;
 extern unsigned long BT1, BT2;
 /////////////////////////////////////////
 
 void IRAM_ATTR button();
-void IRAM_ATTR joysw();
+void IRAM_ATTR left();
+void IRAM_ATTR middle();
+void IRAM_ATTR right();
+void swclr();
+void wheel(int *);
 #endif
 
 /*

@@ -8,12 +8,13 @@
 
 #include "DaTi.h"
 #include "LCD.h"
+#include "Wheel.h"
 
 // GPS接口
 /////////////////////////////////////////
-// Serial2
-#define TX 17
-#define RX 16
+// Serial
+#define TX 21
+#define RX 20
 /////////////////////////////////////////
 
 // 定位
@@ -29,6 +30,7 @@ static TinyGPSCustom WE(GPS, "GPRMC", 6); // 东西
 extern float Lng, Lat; // 经纬
 extern int Spe;        // 速度
 extern int Deg;        // 方向角
+extern int Alt;        // 海拔
 extern char Cou[];     // 方向
 extern char Ava[];     // 有效值
 /////////////////////////////////////////

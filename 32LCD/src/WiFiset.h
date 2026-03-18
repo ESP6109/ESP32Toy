@@ -7,6 +7,7 @@
 
 #include "BuSw.h"
 #include "Joystick.h"
+#include "Wheel.h"
 
 // WIFI列表
 /////////////////////////////////////////

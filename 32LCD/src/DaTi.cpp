@@ -6,8 +6,8 @@ int Yea = 1970, Mon = 1, Day = 1; // 年月日
 int Hou = 8, Min = 0, Sec = 0;    // 时分秒
 int Wee = 1;                      // 星期
 // Ticker esp_timer;                 // 时钟计时
-bool N_t = 0;                     // 接入网络时间
-bool G_t = 0;                     // 接入卫星时间
+bool N_t = 0; // 接入网络时间
+bool G_t = 0; // 接入卫星时间
 int C_h = 0, C_m = 0;
 int Clset = 0;
 /////////////////////////////////////////
@@ -20,7 +20,7 @@ void SecCou()
     Sec = Sec + 1;
   clccal();
   // if (Clset && Hou == C_h && Min == C_m)
-    // ring(1);
+  // ring(1);
 }
 /////////////////////////////////////////
 
@@ -42,7 +42,7 @@ void clccal()
   }
   if (Hou >= 24)
   {
-    Hou = 0;
+    Hou %= 24;
     Day++;
   }
   if ((Mon == 1 || Mon == 3 || Mon == 5 || Mon == 7 || Mon == 8 || Mon == 10 || Mon == 12) && (Day > 31))
@@ -118,11 +118,11 @@ void NetDT()
 {
   if (WiFi.status() != WL_CONNECTED)
   {
-    icon(53, 24, 283);
-    delay(300);
+    icon(56, 40, 283);
+    delay(400);
     return;
   }
-  icon(53, 24, 198);
+  icon(56, 40, 198);
   delay(10);
   setCpuFrequencyMhz(240);
   HTTPClient http;
@@ -130,7 +130,7 @@ void NetDT()
   http.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36");
   int httpCode = 0;
   httpCode = http.GET();
-  delay(200);
+  delay(100);
   if (httpCode > 0)
   {
     if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_FOUND)
@@ -153,16 +153,17 @@ void NetDT()
       else
         Wee = 7;
       N_t = 1;
-      icon(53, 24, 115);
-      delay(500);
+      icon(56, 40, 115);
+      delay(400);
     }
+    swclr();
   }
   else
   {
-    icon(53, 24, 283);
-    delay(500);
+    icon(56, 40, 283);
+    delay(400);
   }
-  Switch = 0;
+  swclr();
   doc.clear();
   http.end();
   setCpuFrequencyMhz(80);

@@ -1,8 +1,8 @@
 // ESP32_LCD_GPS_Project
 // Start at 2024.11.21 16:19:16
-// Build Version 4.4.8
+// Build Version 5.0.1
 // Building
-// Release at 2025.11.13 15:36
+// Release at 2026.03.09 21:06
 
 #include "main.h"
 
@@ -15,7 +15,9 @@ int menuicons[2][4] =
 
 // 设置图标
 /////////////////////////////////////////
-int settingsicons[4] = {247, 94, 123, 188};
+int settingsicons[2][2] =
+    {{247, 94},
+     {123, 188}};
 /////////////////////////////////////////
 
 // 初始化
@@ -25,19 +27,24 @@ void setup()
   u8g2.begin();
   Serial.begin(115200);
   u8g2.enableUTF8Print();
-  pinMode(2, OUTPUT);
-  pinMode(Beep, OUTPUT);
-  pinMode(BU, INPUT);
-  pinMode(SW, INPUT_PULLUP); // z_PULLUP
-  pinMode(JX, INPUT);        // x
-  pinMode(JY, INPUT);        // y
-  attachInterrupt(digitalPinToInterrupt(BU), button, FALLING);
-  attachInterrupt(digitalPinToInterrupt(SW), joysw, FALLING);
-  esp_sleep_enable_ext0_wakeup(GPIO_NUM_13, 0);
+  pinMode(LED, OUTPUT);
+  pinMode(BGL, OUTPUT);
+  pinMode(BUTTON, INPUT);
+  pinMode(LEFT, INPUT_PULLUP);
+  pinMode(MIDDLE, INPUT_PULLUP);
+  pinMode(RIGHT, INPUT);
+  attachInterrupt(digitalPinToInterrupt(BUTTON), button, RISING);
+  attachInterrupt(digitalPinToInterrupt(LEFT), left, RISING);
+  attachInterrupt(digitalPinToInterrupt(MIDDLE), middle, RISING);
+  attachInterrupt(digitalPinToInterrupt(RIGHT), right, RISING);
+  // esp_sleep_enable_ext1_wakeup(GPIO_NUM_1, 0);
+  esp_deep_sleep_enable_gpio_wakeup(2, ESP_GPIO_WAKEUP_GPIO_LOW); // 2 = GPIO1 + 1
   setCpuFrequencyMhz(80);
   esp_timer.attach(1.0, SecCou);
   timer1 = timer2 = millis();
   clearscr();
+  digitalWrite(BGL, 1);
+  digitalWrite(LED, 1);
 }
 /////////////////////////////////////////
 
@@ -53,22 +60,17 @@ void loop()
 /////////////////////////////////////////
 void home()
 {
-  if (Switch)
+  if (Middle)
   {
-    Button = 0;
-    Switch = 0;
+    swclr();
     menu();
   }
   u8g2.clearBuffer();
-  u8g2.setFont(u8g2_font_helvB12_te);
-  u8g2.setCursor(15, 14);
-  u8g2.printf("%04d.%02d.%02d-%d\n", Yea, Mon, Day, Wee);
-  u8g2.setCursor(30, 30);
-  u8g2.printf("%02d %02d %02d\n", Hou, Min, Sec);
-  u8g2.setCursor(47, 28);
-  u8g2.printf(":");
-  u8g2.setCursor(70, 28);
-  u8g2.printf(":");
+  u8g2.setFont(u8g2_font_logisoso16_tr);
+  u8g2.setCursor(9, 24);
+  u8g2.printf("%4d.%02d.%02d-%d", Yea, Mon, Day, Wee);
+  u8g2.setCursor(28, 56);
+  u8g2.printf("%02d:%02d:%02d", Hou, Min, Sec);
   u8g2.sendBuffer();
 }
 /////////////////////////////////////////
@@ -81,19 +83,18 @@ void menu()
   int d = 1;
   while (d)
   {
-    joystick(&a, &b);
-    if (a >= 4 || a <= -1)
+    wheel(&a);
+    if (a >= 8 || a <= -1)
     {
-      a = (a + 4) % 4;
-      b += 1;
+      a = (a + 8) % 8;
+      // b += 1;
     }
     b = (b + 2) % 2;
-    list4(a, menuicons[b]);
+    list2x4(a, menuicons);
     c = b * 4 + (a + 1);
-    if (Switch)
+    if (Middle)
     {
-      Switch = 0;
-      Button = 0;
+      swclr();
       switch (c)
       {
       case 1:
@@ -102,15 +103,15 @@ void menu()
       case 2:
         gps();
         break;
-      case 3:
-        timerset();
-        break;
+      // case 3:
+      // timerset();
+      // break;
       case 4:
         settings();
         break;
-      case 5:
-        lab();
-        break;
+      // case 5:
+      // lab();
+      // break;
       case 7:
         manager();
         break;
@@ -123,13 +124,11 @@ void menu()
     }
     if (Button)
     {
-      Button = 0;
-      Switch = 0;
+      swclr();
       a = b = c = d = 0;
     }
   }
-  Button = 0;
-  Switch = 0;
+  swclr();
 }
 /////////////////////////////////////////
 
@@ -141,7 +140,7 @@ void settings()
   int d = 1;
   while (d)
   {
-    joystick(&a, &Nul);
+    wheel(&a);
     if (a >= 4 || a <= -1)
     {
       a = (a + 4) % 4;
@@ -149,12 +148,11 @@ void settings()
     }
     // b = (b + H_I) % H_I;
     // b = 0;
-    list4(a, settingsicons);
+    list2x2(a, settingsicons);
     c = a + 1;
-    if (Switch)
+    if (Middle)
     {
-      Button = 0;
-      Switch = 0;
+      swclr();
       switch (c)
       {
       case 1:
@@ -172,13 +170,11 @@ void settings()
     }
     if (Button)
     {
-      Button = 0;
-      Switch = 0;
+      swclr();
       a = c = d = 0;
     }
   }
-  Button = 0;
-  Switch = 0;
+  swclr();
 }
 /////////////////////////////////////////
 
@@ -190,12 +186,12 @@ void lab()
   while (!Button)
   {
     u8g2.clearBuffer();
-    u8g2.setFont(u8g2_font_helvB12_te);
+    /*u8g2.setFont(u8g2_font_helvB12_te);
     u8g2.setCursor(4, 22);
     u8g2.printf("X-%04d", analogRead(JX));
     u8g2.setCursor(66, 22);
     u8g2.printf("Y-%04d", analogRead(JY));
-    /*u8g2.setCursor(56, 22);
+    u8g2.setCursor(56, 22);
     u8g2.printf("SW-%04d", analogRead(SW));
     u8g2.setCursor(56, 14);
      u8g2.printf("BU-%04d", analogRead(BU));
@@ -203,8 +199,7 @@ void lab()
      u8g2.printf("SW-%04d", analogRead(SW));*/
     u8g2.sendBuffer();
   }
-  Switch = 0;
-  Button = 0;
+  swclr();
   setCpuFrequencyMhz(80);
 }
 /////////////////////////////////////////
@@ -224,12 +219,11 @@ void esp_info()
     u8g2.printf("Built on ESP Tech.");
     u8g2.setCursor(4, 20);
     u8g2.printf("Designed by ESP6109.");*/
-    u8g2.setCursor(10, 22);
-    u8g2.printf("Version 4.4.8");
+    u8g2.setCursor(13, 38);
+    u8g2.printf("Version 5.0.1");
     u8g2.sendBuffer();
   }
-  Switch = 0;
-  Button = 0;
+  swclr();
 }
 /////////////////////////////////////////
 
@@ -239,10 +233,9 @@ void building()
 {
   while (!Button)
   {
-    icon(53, 24, 282);
+    icon(56, 40, 282);
   }
-  Switch = 0;
-  Button = 0;
+  swclr();
 }
 /////////////////////////////////////////
 
@@ -281,8 +274,7 @@ void manager()
   s_box();
   clearscr();
   s_shot();
-  Switch = 0;
-  Button = 0;
+  swclr();
 }
 /////////////////////////////////////////
 
@@ -294,30 +286,46 @@ void power()
   int d = 1;
   while (d)
   {
-    joystick(&a, &Nul);
+    wheel(&a);
     if (a >= 2 || a <= -1)
     {
       a = (a + 2) % 2;
     }
     // b = (b + H_I) % H_I;
     // b = 0;
-    list2(a, powericons);
+    list1x2(a, powericons);
     c = a + 1;
-    if (Switch)
+    if (Middle)
     {
-      Switch = 0;
+      swclr();
       power(a);
     }
+    if (Button)
+    {
+      swclr();
+      a = c = d = 0;
+      return;
+    }
   }
-  if (Button)
-  {
-    Button = 0;
-    Switch = 0;
-    a = c = d = 0;
-  }
+  swclr();
 }
 /////////////////////////////////////////
 
+    /*while (Left)
+    {
+      a--;
+      // *i += 4;
+      // *i %= 5;
+      Left = 0;
+    }
+    Left = 0;
+    while (Right)
+    {
+      a++;
+      // *i %= 5;
+      Right = 0;
+    }
+    Right = 0;*/
 /*#include <Arduino.h>
 #include "esp32-hal-cpu.h"
 #include <driver/gpio.h>

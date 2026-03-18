@@ -10,42 +10,37 @@ char Cou[3];            // 方向
 char Ava[2];            // 有效值
 /////////////////////////////////////////
 
-void gps();
-void gpsget();
-void gpsdata();
-void gpsdisplay(int);
-
 // 定位
 /////////////////////////////////////////
 void gps()
 {
-  Serial2.begin(9600);
+  Serial.begin(9600);
   int a = 0;
   setCpuFrequencyMhz(240);
   while (!Button)
   {
     gpsget();
-    joystick(&a, &Nul);
-    a = a + 4;
+    // joystick(&a, &Nul);
+    wheel(&a);
+    a = (a + 4) % 4;
     a %= 4;
     if (Ava[0] == 'V') // 无效
     {
-      digitalWrite(2, 0);
+      digitalWrite(LED, 1);
       G_t = 0;
     }
     else if (Ava[0] == 'A') // 有效
     {
-      digitalWrite(2, 1);
+      digitalWrite(LED, 0);
       G_t = 1;
     }
     gpsdisplay(a);
   }
-  Switch = 0;
-  Button = 0;
+  swclr();
   setCpuFrequencyMhz(80);
   G_t = 0;
-  digitalWrite(2, 0);  
-  Serial2.end();
+  digitalWrite(2, 0);
+  Serial.end();
 }
 /////////////////////////////////////////
 
@@ -55,9 +50,9 @@ void gpsget()
 {
   for (unsigned long m = millis(); millis() - m <= 300;)
   {
-    while (Serial2.available())
+    while (Serial.available())
     {
-      GPS.encode(Serial2.read());
+      GPS.encode(Serial.read());
     }
   }
   gpsdata();
@@ -126,6 +121,89 @@ void gpsdisplay(int s)
   switch (s)
   {
   case 0:
+  {
+    u8g2.clearBuffer();
+    u8g2.setFont(u8g2_font_logisoso16_tr);
+    u8g2.setCursor(1, 24);
+    u8g2.printf("%02d.%02d.%02d-%d", (Yea % 100), Mon, Day, Wee);
+    u8g2.setCursor(98, 24);
+    u8g2.printf("%3d", int(Spe));
+    u8g2.setCursor(4, 56);
+    u8g2.printf("%02d:%02d", Hou, Min);
+    u8g2.setCursor(63, 56);
+    u8g2.printf("%2d %3d", int(Lat), int(Lng));
+    u8g2.sendBuffer();
+    break;
+  }
+  case 1:
+  {
+    u8g2.clearBuffer();
+    u8g2.setFont(u8g2_font_logisoso16_tr);
+    u8g2.setCursor(9, 24);
+    u8g2.printf("%4d.%02d.%02d-%d", Yea, Mon, Day, Wee);
+    u8g2.setCursor(28, 56);
+    u8g2.printf("%02d:%02d:%02d", Hou, Min, Sec);
+    u8g2.sendBuffer();
+    break;
+  }
+  case 2:
+  {
+    u8g2.clearBuffer();
+    u8g2.setFont(u8g2_font_helvB12_tf);
+    u8g2.setCursor(18, 14);
+    u8g2.printf("%4d.%02d.%02d-%d", Yea, Mon, Day, Wee);
+    u8g2.setCursor(33, 30);
+    u8g2.printf("%02d %02d %02d", Hou, Min, Sec);
+    u8g2.setCursor(50, 28);
+    u8g2.printf(":");
+    u8g2.setCursor(73, 28);
+    u8g2.printf(":");
+    u8g2.setCursor(1, 46);
+    u8g2.printf("%s", Cou);
+    u8g2.setCursor(1, 62);
+    u8g2.printf("%d", Deg);
+    u8g2.setFont(u8g2_font_logisoso32_tr);
+    u8g2.setCursor(69, 64);
+    u8g2.printf("%3d", int(Spe));
+    u8g2.sendBuffer();
+    break;
+  }
+  case 3:
+  {
+    u8g2.clearBuffer();
+    u8g2.setFont(u8g2_font_logisoso16_tr);
+    u8g2.setCursor(1, 24);
+    u8g2.printf("%3d.%06d", int(Lat), int((Lat * 1000000)) % 1000000);
+    u8g2.setCursor(1, 56);
+    u8g2.printf("%3d.%06d", int(Lng), int((Lng * 1000000)) % 1000000);
+    u8g2.setFont(u8g2_font_helvB18_tr);
+    u8g2.setCursor(100, 25);
+    u8g2.printf("%s", NS.value());
+    u8g2.setCursor(100, 57);
+    u8g2.printf("%s", WE.value());
+    u8g2.sendBuffer();
+    break;
+  }
+  case 4:
+  {
+    u8g2.clearBuffer();
+    u8g2.setFont(u8g2_font_logisoso62_tn);
+    if (Spe < 10)
+      u8g2.setCursor(44, 63);
+    else if (Spe >= 10 && Spe < 100)
+      u8g2.setCursor(24, 63);
+    else if (Spe >= 100)
+      u8g2.setCursor(4, 63);
+    u8g2.printf("%d", int(Spe));
+    u8g2.sendBuffer();
+    break;
+  }
+  }
+}
+/////////////////////////////////////////
+
+/*
+case 0:
   {
     u8g2.clearBuffer();
     u8g2.setFont(u8g2_font_helvB12_te);
@@ -208,8 +286,4 @@ void gpsdisplay(int s)
     u8g2.printf("%3d\n", Spe);
     u8g2.sendBuffer();
     break;
-  }
-  }
-}
-/////////////////////////////////////////
-
+  }*/

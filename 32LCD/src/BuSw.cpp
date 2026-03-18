@@ -4,6 +4,7 @@
 /////////////////////////////////////////
 int Button = 0;
 int Switch = 0;
+int Left = 0, Middle = 0, Right = 0;
 unsigned long ST1 = 0, ST2 = 0;
 unsigned long BT1 = 0, BT2 = 0;
 /////////////////////////////////////////
@@ -13,7 +14,7 @@ unsigned long BT1 = 0, BT2 = 0;
 void IRAM_ATTR button()
 {
     BT1 = millis();
-    if (BT1 - BT2 > 250)
+    if (BT1 - BT2 > 300)
     {
         Button = 1;
         BT2 = BT1;
@@ -21,15 +22,75 @@ void IRAM_ATTR button()
 }
 /////////////////////////////////////////
 
-// 按键SW
+// 按键Left
 /////////////////////////////////////////
-void IRAM_ATTR joysw()
+void IRAM_ATTR left()
 {
-    ST1 = millis();
-    if (ST1 - ST2 > 250)
+    BT1 = millis();
+    if (BT1 - BT2 > 300)
     {
-        Switch = 1;
-        ST2 = ST1;
+        Left = 1;
+        BT2 = BT1;
     }
 }
 /////////////////////////////////////////
+
+//
+/////////////////////////////////////////
+void IRAM_ATTR middle()
+{
+    BT1 = millis();
+    if (BT1 - BT2 > 300)
+    {
+        Middle = 1;
+        BT2 = BT1;
+    }
+}
+/////////////////////////////////////////
+
+//
+/////////////////////////////////////////
+void IRAM_ATTR right()
+{
+    BT1 = millis();
+    if (BT1 - BT2 > 300)
+    {
+        Right = 1;
+        BT2 = BT1;
+    }
+}
+//////////////////////////////////////////
+
+//
+//////////////////////////////////////////
+void swclr()
+{
+    Button = 0;
+    Left = 0;
+    Middle = 0;
+    Right = 0;
+}
+//////////////////////////////////////////
+
+//
+//////////////////////////////////////////
+void wheel(int *i)
+{
+    while (Left)
+    {
+        (*i)--;
+        // *i += 4;
+        // *i %= 5;
+        Left = 0;
+    }
+    Left = 0;
+    while (Right)
+    {
+        (*i)++;
+        // *i %= 5;
+        Right = 0;
+    }
+    Right = 0;
+    // swclr();
+}
+//////////////////////////////////////////

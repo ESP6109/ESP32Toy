@@ -10,7 +10,6 @@ const char *pwd[] = {"k9qb1600"};
 
 //
 /////////////////////////////////////////
-// int W_con = 0;
 int wifiicons[2] = {64, 197};
 /////////////////////////////////////////
 
@@ -24,50 +23,52 @@ void WIFIconnect()
     int d = 0;
     int t = 0;
     setCpuFrequencyMhz(240);
-    Button = 0;
-    Switch = 0;
+    swclr();
     t = millis();
     WiFi.mode(WIFI_MODE_STA);
     while (WiFi.status() != WL_CONNECTED)
     {
+        icon(56, 40, 247);
         WiFi.begin(ssid[0], pwd[0]);
-        icon(53, 24, 247);
-        delay(50);
+        delay(125);
         if (Button)
         {
-            Button = 0;
-            Switch = 0;
+            swclr();
+            WiFi.mode(WIFI_OFF);
             setCpuFrequencyMhz(80);
             return;
         }
         if (millis() - t >= 15000)
         {
-            icon(53, 24, 283);
-            delay(500);
-            Button = 0;
-            Switch = 0;
+            icon(56, 40, 283);
+            delay(400);
+            swclr();
+            WiFi.mode(WIFI_OFF);
             setCpuFrequencyMhz(80);
             return;
         }
     }
-    setCpuFrequencyMhz(80);
+    setCpuFrequencyMhz(240);
     if (WiFi.status() == WL_CONNECTED)
         d = 1;
-    Button = 0;
-    Switch = 0;
-    while (!(Button || Switch))
+    swclr();
+    while (!(Button || Middle))
     {
         u8g2.clearBuffer();
         u8g2.setFont(u8g2_font_helvB12_te);
-        u8g2.setCursor(1, 22);
+        int len = strlen(WiFi.localIP().toString().c_str());
+        u8g2.setCursor((128 - 3 * 4 - (len - 3) * 9) / 2, 38);
         u8g2.println(WiFi.localIP().toString().c_str());
+        // u8g2.println(len);
+        // u8g2.setFont(u8g2_font_logisoso16_tr);
+        // u8g2.setCursor(0, 54);
+        // u8g2.println(WiFi.macAddress().c_str());
         u8g2.sendBuffer();
     }
+    swclr();
     while (d)
     {
-        Button = 0;
-        Switch = 0;
-        joystick(&a, &Nul);
+        wheel(&a);
         if (a >= 2 || a <= -1)
         {
             a = (a + 2) % 2;
@@ -75,26 +76,28 @@ void WIFIconnect()
         // b = (b + H_I) % H_I;
         // b = 0;
         c = a + 1;
-        list2(a, wifiicons);
-        if (Switch)
+        list1x2(a, wifiicons);
+        if (Middle)
         {
             if (a)
+            {
                 WiFi.disconnect();
+            }
+            WiFi.mode(WIFI_OFF);
             a = c = d = 0;
-            Button = 0;
-            Switch = 0;
+            swclr();
             setCpuFrequencyMhz(80);
             return;
         }
         else if (Button)
         {
-            Button = 0;
-            Switch = 0;
+            swclr();
             setCpuFrequencyMhz(80);
             return;
         }
     }
     setCpuFrequencyMhz(80);
+    swclr();
 }
 /////////////////////////////////////////
 

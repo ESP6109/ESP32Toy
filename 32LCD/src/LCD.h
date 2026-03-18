@@ -3,21 +3,22 @@
 
 #include <U8g2lib.h>
 
-// LCD12232接口
+// LCD12864接口
 /////////////////////////////////////////
-#define EN 5
-#define RW 18
-#define RS 19
+#define EN 7
+#define RW 6
+#define RS 5
 static U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R0, EN, RW, RS, U8X8_PIN_NONE);
 // U8G2_ST7920_128X32_F_SW_SPI u8g2(U8G2_R0, 5, 18, 19, U8X8_PIN_NONE);
 /////////////////////////////////////////
 
 void clearscr();
 void icon(int, int, int);
-void list2(int, int *);
-void list3(int, int *);
-void list4(int, int *);
-void list5(int, int *);
+void list1x2(int, int *);
+void list2x2(int, int[][2]);
+void list2x3(int, int[][3]);
+void list2x4(int, int[][4]);
+void list2x5(int, int [][5]);
 
 #endif
 /*

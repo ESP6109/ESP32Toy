@@ -1,8 +1,8 @@
 // ESP32_LCD_GPS_Project
 // Start at 2024.11.21 16:19:16
-// Build Version 4.4.8
+// Build Version 5.0.1
 // Building
-// Release at 2025.11.11 15:36
+// Release at 2026.03.09 21:06
 #include <Arduino.h>
 #include "esp32-hal-cpu.h"
 #include <driver/gpio.h>
@@ -12,20 +12,21 @@
 #include "DaTi.h"
 #include "GPS.h"
 #include "Joy.h"
-#include "Joystick.h"
+// #include "Joystick.h"
 #include "LCD.h"
 #include "Power.h"
 #include "Weather.h"
+// #include "Wheel.h"
 #include "WIFIset.h"
 
 // 主界面图标
 /////////////////////////////////////////
-extern int menuicon[];
+extern int menuicon[][4];
 /////////////////////////////////////////
 
 // 设置图标
 /////////////////////////////////////////
-extern int settingsicons[];
+extern int settingsicons[][2];
 /////////////////////////////////////////
 
 // 定义
