@@ -1,8 +1,8 @@
 // ESP32_LCD_GPS_Project
 // Start at 2024.11.21 16:19:16
-// Build Version 5.0.1
+// Build Version 5.1.5
 // Building
-// Release at 2026.03.09 21:06
+// Release at 2026.03.29 19:35
 
 #include "main.h"
 
@@ -10,22 +10,39 @@
 /////////////////////////////////////////
 int menuicons[2][4] =
     {{124, 209, 93, 129},
-     {92, 240, 141, 235}};
+     {92, 225, 141, 235}};
 /////////////////////////////////////////
 
 // 设置图标
 /////////////////////////////////////////
 int settingsicons[2][2] =
     {{247, 94},
-     {123, 188}};
+     {123, 188}}; // 196
+/////////////////////////////////////////
+
+/////////////////////////////////////////
+void getdht(void *pvParameters)
+{
+  while (1)
+  {
+    vTaskDelay(2500);
+    TemDH = Dht.getHumidity();
+    TemDT = Dht.getTemperature();
+    if (!(isnan(TemDT) || isnan(TemDH) || TemDH > 100 || TemDH < 0))
+    {
+      DHum = TemDH;
+      DTem = TemDT;
+    }
+  }
+}
 /////////////////////////////////////////
 
 // 初始化
 /////////////////////////////////////////
 void setup()
 {
+  Dht.setup(DhtPin, DHTesp::DHT22);
   u8g2.begin();
-  Serial.begin(115200);
   u8g2.enableUTF8Print();
   pinMode(LED, OUTPUT);
   pinMode(BGL, OUTPUT);
@@ -41,10 +58,17 @@ void setup()
   esp_deep_sleep_enable_gpio_wakeup(2, ESP_GPIO_WAKEUP_GPIO_LOW); // 2 = GPIO1 + 1
   setCpuFrequencyMhz(80);
   esp_timer.attach(1.0, SecCou);
+  xTaskCreate(getdht,
+              "DHTdata",
+              16384,
+              NULL,
+              3,
+              NULL);
   timer1 = timer2 = millis();
-  clearscr();
-  digitalWrite(BGL, 1);
+  analogWrite(BGL, Lumi);
   digitalWrite(LED, 1);
+  clearscr();
+  swclr();
 }
 /////////////////////////////////////////
 
@@ -66,10 +90,48 @@ void home()
     menu();
   }
   u8g2.clearBuffer();
-  u8g2.setFont(u8g2_font_logisoso16_tr);
-  u8g2.setCursor(9, 24);
+  u8g2.setFont(u8g2_font_helvB12_te);
+  u8g2.setCursor(18, 14);
   u8g2.printf("%4d.%02d.%02d-%d", Yea, Mon, Day, Wee);
-  u8g2.setCursor(28, 56);
+  if (Sec < 30 && Wup)
+  {
+    if (Tem[0] <= -10)
+      u8g2.setCursor(86, 62);
+    else if (Tem[0] >= -9 && Tem[0] <= -1)
+      u8g2.setCursor(95, 62);
+    else if (Tem[0] >= 0 && Tem[0] <= 9)
+      u8g2.setCursor(100, 62);
+    else
+      u8g2.setCursor(91, 62);
+    u8g2.printf("%d°C", Tem[0]); // Tem
+    if (Hum[0] >= 0 && Hum[0] <= 9)
+      u8g2.setCursor(10, 62);
+    else
+      u8g2.setCursor(1, 62);
+    u8g2.printf("%d %%", Hum[0]); // Hum
+    u8g2.setFont(u8g2_font_open_iconic_all_2x_t);
+    u8g2.drawGlyph(56, 64, Icon[0][0]);
+  }
+  else
+  {
+    if (int(DTem) <= -10)
+      u8g2.setCursor(73, 62);
+    else if (int(DTem) >= -9 && int(DTem) <= -1)
+      u8g2.setCursor(82, 62);
+    else if (int(DTem) >= 0 && int(DTem) <= 9)
+      u8g2.setCursor(87, 62);
+    else
+      u8g2.setCursor(78, 62);
+    u8g2.printf("%d.%d°C", int(DTem), abs(int(DTem * 10) % 10));
+    if (int(DHum) >= 0 && int(DHum) <= 9)
+      u8g2.setCursor(10, 62);
+    else
+      u8g2.setCursor(1, 62);
+    u8g2.printf("%d.%d %%", int(DHum), abs(int(DHum * 10) % 10));
+    u8g2.drawXBMP(56, 48, 16, 16, Therm);
+  }
+  u8g2.setFont(u8g2_font_logisoso24_tr);
+  u8g2.setCursor(10, 44);
   u8g2.printf("%02d:%02d:%02d", Hou, Min, Sec);
   u8g2.sendBuffer();
 }
@@ -103,17 +165,18 @@ void menu()
       case 2:
         gps();
         break;
-      // case 3:
-      // timerset();
-      // break;
+        // case 3:
+        // timerset();
+        // break;
       case 4:
         settings();
         break;
-      // case 5:
-      // lab();
-      // break;
+      case 5:
+        lab();
+        break;
       case 7:
-        manager();
+        // manager();
+        dino();
         break;
       case 8:
         power();
@@ -182,21 +245,72 @@ void settings()
 /////////////////////////////////////////
 void lab()
 {
-  setCpuFrequencyMhz(240);
+  setCpuFrequencyMhz(160);
+  static char st = 'N';
+  delay(50);
   while (!Button)
   {
     u8g2.clearBuffer();
-    /*u8g2.setFont(u8g2_font_helvB12_te);
-    u8g2.setCursor(4, 22);
-    u8g2.printf("X-%04d", analogRead(JX));
-    u8g2.setCursor(66, 22);
-    u8g2.printf("Y-%04d", analogRead(JY));
-    u8g2.setCursor(56, 22);
-    u8g2.printf("SW-%04d", analogRead(SW));
-    u8g2.setCursor(56, 14);
-     u8g2.printf("BU-%04d", analogRead(BU));
-     u8g2.setCursor(56, 30);
-     u8g2.printf("SW-%04d", analogRead(SW));*/
+    u8g2.setFont(u8g2_font_logisoso16_tr);
+    if (!digitalRead(LEFT))
+      st = 'L';
+    else if (!digitalRead(MIDDLE))
+      st = 'M';
+    else if (!digitalRead(RIGHT))
+      st = 'R';
+    else
+      st = 'N';
+    switch (st)
+    {
+    case 'L':
+    {
+      u8g2.drawRBox(27, 22, 22, 20, 1);
+      u8g2.setCursor(28, 40);
+      u8g2.setDrawColor(0);
+      u8g2.printf("LL");
+      u8g2.setDrawColor(1);
+      u8g2.setCursor(54, 40);
+      u8g2.printf("MM");
+      u8g2.setCursor(80, 40);
+      u8g2.printf("RR");
+      break;
+    }
+    case 'M':
+    {
+      u8g2.setCursor(28, 40);
+      u8g2.printf("LL");
+      u8g2.drawRBox(53, 22, 22, 20, 1);
+      u8g2.setCursor(54, 40);
+      u8g2.setDrawColor(0);
+      u8g2.printf("MM");
+      u8g2.setDrawColor(1);
+      u8g2.setCursor(80, 40);
+      u8g2.printf("RR");
+      break;
+    }
+    case 'R':
+    {
+      u8g2.setCursor(28, 40);
+      u8g2.printf("LL");
+      u8g2.setCursor(54, 40);
+      u8g2.printf("MM");
+      u8g2.drawRBox(79, 22, 22, 20, 1);
+      u8g2.setCursor(80, 40);
+      u8g2.setDrawColor(0);
+      u8g2.printf("RR");
+      u8g2.setDrawColor(1);
+      break;
+    }
+    default:
+    {
+      u8g2.setCursor(28, 40);
+      u8g2.printf("LL");
+      u8g2.setCursor(54, 40);
+      u8g2.printf("MM");
+      u8g2.setCursor(80, 40);
+      u8g2.printf("RR");
+    }
+    }
     u8g2.sendBuffer();
   }
   swclr();
@@ -215,12 +329,12 @@ void esp_info()
     /*static int i = 0;
     joystick(&Nul, &i);
     i %= (i + 2);
-    u8g2.setCursor(13, 9);
-    u8g2.printf("Built on ESP Tech.");
     u8g2.setCursor(4, 20);
     u8g2.printf("Designed by ESP6109.");*/
-    u8g2.setCursor(13, 38);
-    u8g2.printf("Version 5.0.1");
+    u8g2.setCursor(4, 22);
+    u8g2.printf("Espressif Tech.");
+    u8g2.setCursor(14, 54);
+    u8g2.printf("Version 5.1.5");
     u8g2.sendBuffer();
   }
   swclr();
@@ -311,21 +425,21 @@ void power()
 }
 /////////////////////////////////////////
 
-    /*while (Left)
-    {
-      a--;
-      // *i += 4;
-      // *i %= 5;
-      Left = 0;
-    }
-    Left = 0;
-    while (Right)
-    {
-      a++;
-      // *i %= 5;
-      Right = 0;
-    }
-    Right = 0;*/
+/*while (Left)
+{
+  a--;
+  // *i += 4;
+  // *i %= 5;
+  Left = 0;
+}
+Left = 0;
+while (Right)
+{
+  a++;
+  // *i %= 5;
+  Right = 0;
+}
+Right = 0;*/
 /*#include <Arduino.h>
 #include "esp32-hal-cpu.h"
 #include <driver/gpio.h>

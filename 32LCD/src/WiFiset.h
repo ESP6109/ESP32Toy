@@ -7,10 +7,11 @@
 
 #include "BuSw.h"
 #include "Joystick.h"
-#include "Wheel.h"
 
 // WIFI列表
 /////////////////////////////////////////
+// const char* ssid = "H4749";
+// const char* pwd = "18807724749";
 extern const char *ssid[];
 extern const char *pwd[];
 /////////////////////////////////////////

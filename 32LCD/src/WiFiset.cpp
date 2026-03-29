@@ -2,8 +2,10 @@
 
 // WIFI列表
 /////////////////////////////////////////
-const char *ssid[] = {""};
-const char *pwd[] = {""};
+// const char* ssid = "H4749";
+// const char* pwd = "18807724749";
+const char *ssid[] = {"Xiaomi Civi 4 Pro"};
+const char *pwd[] = {"k9qb1600"};
 /////////////////////////////////////////
 
 //
@@ -20,14 +22,21 @@ void WIFIconnect()
     static int a = 0, c = 0;
     int d = 0;
     int t = 0;
-    setCpuFrequencyMhz(240);
+    Serial.begin(115200);
+    setCpuFrequencyMhz(160);
     swclr();
     t = millis();
     WiFi.mode(WIFI_MODE_STA);
     while (WiFi.status() != WL_CONNECTED)
     {
         icon(56, 40, 247);
+        // WiFi.scanNetworks();
         WiFi.begin(ssid[0], pwd[0]);
+        if (WiFi.status() == WL_CONNECTED)
+            break;
+        // Serial.printf("%d-%d\n", WiFi.status(), WiFi.scanNetworks());
+        Serial.printf("%d", WiFi.status());
+        Serial.println("");
         delay(125);
         if (Button)
         {
@@ -46,7 +55,7 @@ void WIFIconnect()
             return;
         }
     }
-    setCpuFrequencyMhz(240);
+    setCpuFrequencyMhz(160);
     if (WiFi.status() == WL_CONNECTED)
         d = 1;
     swclr();
@@ -57,10 +66,6 @@ void WIFIconnect()
         int len = strlen(WiFi.localIP().toString().c_str());
         u8g2.setCursor((128 - 3 * 4 - (len - 3) * 9) / 2, 38);
         u8g2.println(WiFi.localIP().toString().c_str());
-        // u8g2.println(len);
-        // u8g2.setFont(u8g2_font_logisoso16_tr);
-        // u8g2.setCursor(0, 54);
-        // u8g2.println(WiFi.macAddress().c_str());
         u8g2.sendBuffer();
     }
     swclr();
@@ -85,16 +90,17 @@ void WIFIconnect()
             a = c = d = 0;
             swclr();
             setCpuFrequencyMhz(80);
-            return;
+            break;
         }
         else if (Button)
         {
             swclr();
             setCpuFrequencyMhz(80);
-            return;
+            break;
         }
     }
     setCpuFrequencyMhz(80);
+    Serial.end();
     swclr();
 }
 /////////////////////////////////////////

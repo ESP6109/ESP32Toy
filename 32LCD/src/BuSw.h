@@ -17,6 +17,7 @@ extern int Switch;
 extern int Left, Middle, Right;
 extern unsigned long ST1, ST2;
 extern unsigned long BT1, BT2;
+extern int timer1, timer2 ;
 /////////////////////////////////////////
 
 void IRAM_ATTR button();

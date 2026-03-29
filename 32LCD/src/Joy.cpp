@@ -8,11 +8,11 @@ void s_box()
   for (i = 1; i <= 7; ++i)
   {
     u8g2.clearBuffer();
-    u8g2.setFont(u8g2_font_helvB12_tf);
-    u8g2.setCursor(23, 14);
+    u8g2.setFont(u8g2_font_helvB12_te);
+    u8g2.setCursor(23, 30);
     u8g2.printf("ESP Tech.");
     for (j = -2; j <= i; ++j)
-      u8g2.drawBox(-13 + 17 * j, 18, 12, 14);
+      u8g2.drawBox(-13 + 17 * j, 34, 12, 14);
     u8g2.sendBuffer();
     delay(100);
   }
@@ -33,16 +33,16 @@ void s_shot()
     u8g2.printf("PENIS");
     u8g2.setCursor(65, 32);
     u8g2.printf("CUMING");*/
-    u8g2.drawDisc(8, 8, 8, U8G2_DRAW_ALL);
-    u8g2.drawDisc(8, 23, 8, U8G2_DRAW_ALL);
-    u8g2.drawBox(3, 10, 45, 14);
-    u8g2.drawFilledEllipse(45, 16, 8, 9);
-    u8g2.drawDisc(i, 16, 3, U8G2_DRAW_ALL);
-    u8g2.drawDisc(i - 25, 16, 3, U8G2_DRAW_ALL);
+    u8g2.drawDisc(8, 24, 8, U8G2_DRAW_ALL);
+    u8g2.drawDisc(8, 39, 8, U8G2_DRAW_ALL);
+    u8g2.drawBox(3, 26, 45, 14);
+    u8g2.drawFilledEllipse(45, 32, 8, 9);
+    u8g2.drawDisc(i, 32, 3, U8G2_DRAW_ALL);
+    u8g2.drawDisc(i - 25, 32, 3, U8G2_DRAW_ALL);
     if (i >= 90)
     {
-      u8g2.drawDisc(i - 50, 16, 3, U8G2_DRAW_ALL);
-      u8g2.drawDisc(i - 75, 16, 3, U8G2_DRAW_ALL);
+      u8g2.drawDisc(i - 50, 32, 3, U8G2_DRAW_ALL);
+      u8g2.drawDisc(i - 75, 32, 3, U8G2_DRAW_ALL);
     }
     i += 2;
     /*if (i == 143)

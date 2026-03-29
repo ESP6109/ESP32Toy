@@ -16,6 +16,8 @@ int Clset = 0;
 /////////////////////////////////////////
 void SecCou()
 {
+  if (millis() - timer1 >= 2 * 60 * 1000)
+    analogWrite(BGL, 0);
   if (!G_t)
     Sec = Sec + 1;
   clccal();
@@ -124,7 +126,7 @@ void NetDT()
   }
   icon(56, 40, 198);
   delay(10);
-  setCpuFrequencyMhz(240);
+  setCpuFrequencyMhz(160);
   HTTPClient http;
   http.begin(nettime);
   http.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36");
