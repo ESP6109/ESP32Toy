@@ -1,0 +1,120 @@
+#ifndef Setting_h
+#define Setting_h
+
+// #include "main.cpp"
+
+void settings();
+void clksets();
+void esp_info();
+
+// 设置图标
+/////////////////////////////////////////
+int settingsicons[1][5] = {247, 94, 123, 188, 65};
+/////////////////////////////////////////
+
+// 设置
+/////////////////////////////////////////
+void settings()
+{
+  static int a = 0, b = 0, c = 0;
+  int d = 1;
+  while (d)
+  {
+    joystick(&a, &b);
+    if (a >= 5 || a <= -1)
+    {
+      a = (a + 5) % 5;
+      // b += 1;
+    }
+    // b = (b + H_I) % H_I;
+    b = 0;
+    u8g2.clearBuffer();
+    u8g2.setFont(u8g2_font_open_iconic_all_2x_t);
+    u8g2.drawGlyph(7, 24, settingsicons[0][0]);
+    u8g2.drawGlyph(30, 24, settingsicons[0][1]);
+    u8g2.drawGlyph(53, 24, settingsicons[0][2]);
+    u8g2.drawGlyph(76, 24, settingsicons[0][3]);
+    u8g2.drawGlyph(99, 24, settingsicons[0][4]);
+    u8g2.setFont(u8g2_font_wqy12_t_gb2312b);
+    u8g2.drawRFrame(4 + 23 * (a % 5), 6, 22, 20, 3);
+    u8g2.setCursor(0, 8);
+    u8g2.printf("%d", b + 1);
+    u8g2.setCursor(117, 8);
+    u8g2.printf("%d", a + 1);
+    u8g2.sendBuffer();
+    c = b * 5 + (a + 1);
+    if (/*joysw button() Button.pressed*/ Switch.pressed)
+    {
+      Button.pressed = 0;
+      Switch.pressed = 0;
+      switch (c)
+      {
+      case 3:
+        clksets();
+        break;
+      case 4:
+        esp_info();
+        break;
+      case 5:
+        a = b = d = 0;
+        break;
+      default:
+        building();
+      }
+    }
+    // Serial.printf("%d %d \n", button(), joysw());
+  }
+}
+/////////////////////////////////////////
+
+// 校时
+/////////////////////////////////////////
+void clksets()
+{
+  int a = 0, b = 0;
+  while (!Button.pressed)
+  {
+    joystick(NULL, &b);
+    b = (b + 2) % 2;
+    u8g2.clearBuffer();
+    u8g2.drawBox(37, 3 + 15 * b, 11, 11);
+    u8g2.drawBox(75, 3 + 15 * b, 11, 11);
+    u8g2.setFont(u8g2_font_wqy12_t_gb2312b);
+    u8g2.setCursor(0, 20);
+    u8g2.printf("校时");
+    u8g2.setCursor(50, 13);
+    u8g2.printf("卫星");
+    u8g2.setCursor(50, 28);
+    u8g2.printf("WIFI");
+    u8g2.setCursor(0, 8);
+    u8g2.printf("%d", b + 1);
+    u8g2.sendBuffer();
+  }
+  Switch.pressed = 0;
+  Button.pressed = 0;
+}
+/////////////////////////////////////////
+
+// 关于
+/////////////////////////////////////////
+void esp_info()
+{
+  while (!Button.pressed)
+  {
+    u8g2.clearBuffer();
+    u8g2.setFont(u8g2_font_wqy12_t_gb2312b);
+    u8g2.setCursor(13, 9);
+    u8g2.printf("Built on ESP Tech.");
+    u8g2.setCursor(4, 20);
+    u8g2.printf("Designed by ESP6109.");
+    u8g2.setCursor(25, 31);
+    u8g2.printf("Version 3.5.0");
+    u8g2.sendBuffer();
+  }
+  Switch.pressed = 0;
+  Button.pressed = 0;
+}
+/////////////////////////////////////////
+
+
+#endif
