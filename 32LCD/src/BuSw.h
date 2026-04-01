@@ -3,6 +3,8 @@
 
 #include <Arduino.h>
 
+#include "LCD.h"
+
 // 按键接口
 /////////////////////////////////////////
 #define LED 8
@@ -15,9 +17,10 @@
 extern int Button;
 extern int Switch;
 extern int Left, Middle, Right;
+extern int Lp, Rp;
 extern unsigned long ST1, ST2;
 extern unsigned long BT1, BT2;
-extern int timer1, timer2 ;
+extern int timer1, timer2;
 /////////////////////////////////////////
 
 void IRAM_ATTR button();

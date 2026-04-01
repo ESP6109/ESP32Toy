@@ -17,6 +17,7 @@ extern bool N_t;          // 接入网络时间
 extern bool G_t;          // 接入卫星时间
 extern int C_h, C_m;
 extern int Clset;
+extern int Boff;
 /////////////////////////////////////////
 
 void SecCou();

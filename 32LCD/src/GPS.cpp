@@ -151,6 +151,37 @@ void gpsdisplay(int s)
   {
     u8g2.clearBuffer();
     u8g2.setFont(u8g2_font_helvB12_te);
+    u8g2.setCursor(1, 14);
+    u8g2.printf("%02d.%02d", Mon, Day);
+    u8g2.setCursor(64, 14);
+    u8g2.printf("%02d %02d %02d", Hou, Min, Sec);
+    u8g2.setCursor(81, 12);
+    u8g2.printf(":");
+    u8g2.setCursor(104, 12);
+    u8g2.printf(":");
+    u8g2.setCursor(18, 30);
+    u8g2.printf("%dm", Alt);
+    if (Nsat >= 0 && Nsat <= 9)
+      u8g2.setCursor(104, 30);
+    else
+      u8g2.setCursor(95, 30);
+    u8g2.printf("%d", Nsat);
+    u8g2.setCursor(1, 46);
+    u8g2.printf("%d°", Deg);
+    u8g2.setCursor(1, 62);
+    u8g2.printf("%s", Cou);
+    u8g2.setFont(u8g2_font_logisoso32_tr);
+    u8g2.setCursor(37, 64);
+    u8g2.printf("%3d.%d", int(Spe), int(Spe * 10) % 10);
+    u8g2.drawXBMP(1, 16, 16, 16, Mount);
+    u8g2.drawXBMP(112, 16, 16, 16, Satellite);
+    u8g2.sendBuffer();
+    break;
+  }
+  case 2:
+  {
+    u8g2.clearBuffer();
+    u8g2.setFont(u8g2_font_helvB12_te);
     u8g2.setCursor(18, 14);
     u8g2.printf("%4d.%02d.%02d-%d", Yea, Mon, Day, Wee);
     u8g2.setCursor(33, 30);
@@ -175,37 +206,6 @@ void gpsdisplay(int s)
     // u8g2.printf("%s", NS.value());
     // u8g2.setCursor(100, 62);
     // u8g2.printf("%s", WE.value());
-    u8g2.sendBuffer();
-    break;
-  }
-  case 2:
-  {
-    u8g2.clearBuffer();
-    u8g2.setFont(u8g2_font_helvB12_te);
-    // u8g2.setCursor(18, 14);
-    // u8g2.printf("%4d.%02d.%02d-%d", Yea, Mon, Day, Wee);
-    u8g2.setCursor(33, 14);
-    u8g2.printf("%02d %02d %02d", Hou, Min, Sec);
-    u8g2.setCursor(50, 12);
-    u8g2.printf(":");
-    u8g2.setCursor(73, 12);
-    u8g2.printf(":");
-    u8g2.setCursor(18, 30);
-    u8g2.printf("%dm", Alt);
-    if (Nsat >= 0 && Nsat <= 9)
-      u8g2.setCursor(104, 30);
-    else
-      u8g2.setCursor(95, 30);
-    u8g2.printf("%d", Nsat);
-    u8g2.setCursor(1, 46);
-    u8g2.printf("%d°", Deg);
-    u8g2.setCursor(1, 62);
-    u8g2.printf("%s", Cou);
-    u8g2.setFont(u8g2_font_logisoso32_tr);
-    u8g2.setCursor(37, 64);
-    u8g2.printf("%3d.%d", int(Spe), int(Spe * 10) % 10);
-    u8g2.drawXBMP(1, 16, 16, 16, Mount);
-    u8g2.drawXBMP(112, 16, 16, 16, Satellite);
     u8g2.sendBuffer();
     break;
   }

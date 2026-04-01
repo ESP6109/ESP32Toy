@@ -1,8 +1,8 @@
 // ESP32_LCD_GPS_Project
 // Start at 2024.11.21 16:19:16
-// Build Version 5.1.5
+// Build Version 5.1.9
 // Building
-// Release at 2026.03.29 19:35
+// Release at 2026.04.01 19:56
 
 #include "main.h"
 
@@ -10,14 +10,14 @@
 /////////////////////////////////////////
 int menuicons[2][4] =
     {{124, 209, 93, 129},
-     {92, 225, 141, 235}};
+     {240, 225, 141, 235}};
 /////////////////////////////////////////
 
 // 设置图标
 /////////////////////////////////////////
-int settingsicons[2][2] =
-    {{247, 94},
-     {123, 188}}; // 196
+int settingsicons[2][3] =
+    {{247, 94, 123},
+     {196, 92, 188}};
 /////////////////////////////////////////
 
 /////////////////////////////////////////
@@ -51,9 +51,9 @@ void setup()
   pinMode(MIDDLE, INPUT_PULLUP);
   pinMode(RIGHT, INPUT);
   attachInterrupt(digitalPinToInterrupt(BUTTON), button, RISING);
-  attachInterrupt(digitalPinToInterrupt(LEFT), left, RISING);
+  attachInterrupt(digitalPinToInterrupt(LEFT), left, FALLING);
   attachInterrupt(digitalPinToInterrupt(MIDDLE), middle, RISING);
-  attachInterrupt(digitalPinToInterrupt(RIGHT), right, RISING);
+  attachInterrupt(digitalPinToInterrupt(RIGHT), right, FALLING);
   // esp_sleep_enable_ext1_wakeup(GPIO_NUM_1, 0);
   esp_deep_sleep_enable_gpio_wakeup(2, ESP_GPIO_WAKEUP_GPIO_LOW); // 2 = GPIO1 + 1
   setCpuFrequencyMhz(80);
@@ -130,8 +130,8 @@ void home()
     u8g2.printf("%d.%d %%", int(DHum), abs(int(DHum * 10) % 10));
     u8g2.drawXBMP(56, 48, 16, 16, Therm);
   }
-  u8g2.setFont(u8g2_font_logisoso24_tr);
-  u8g2.setCursor(10, 44);
+  u8g2.setFont(u8g2_font_helvB24_te);
+  u8g2.setCursor(-1, 44);
   u8g2.printf("%02d:%02d:%02d", Hou, Min, Sec);
   u8g2.sendBuffer();
 }
@@ -171,9 +171,9 @@ void menu()
       case 4:
         settings();
         break;
-      case 5:
-        lab();
-        break;
+      // case 5:
+      // lab();
+      // break;
       case 7:
         // manager();
         dino();
@@ -204,14 +204,14 @@ void settings()
   while (d)
   {
     wheel(&a);
-    if (a >= 4 || a <= -1)
+    if (a >= 6 || a <= -1)
     {
-      a = (a + 4) % 4;
+      a = (a + 6) % 6;
       // b += 1;
     }
     // b = (b + H_I) % H_I;
     // b = 0;
-    list2x2(a, settingsicons);
+    list2x3(a, settingsicons);
     c = a + 1;
     if (Middle)
     {
@@ -225,6 +225,12 @@ void settings()
         clksets();
         break;
       case 4:
+        Blibri();
+        break;
+      case 5:
+        lab();
+        break;
+      case 6:
         esp_info();
         break;
       default:
@@ -334,7 +340,7 @@ void esp_info()
     u8g2.setCursor(4, 22);
     u8g2.printf("Espressif Tech.");
     u8g2.setCursor(14, 54);
-    u8g2.printf("Version 5.1.5");
+    u8g2.printf("Version 5.1.9");
     u8g2.sendBuffer();
   }
   swclr();

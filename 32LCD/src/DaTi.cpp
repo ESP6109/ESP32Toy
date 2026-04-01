@@ -10,13 +10,14 @@ bool N_t = 0; // 接入网络时间
 bool G_t = 0; // 接入卫星时间
 int C_h = 0, C_m = 0;
 int Clset = 0;
+int Boff=120;
 /////////////////////////////////////////
 
 // 秒针走时
 /////////////////////////////////////////
 void SecCou()
 {
-  if (millis() - timer1 >= 2 * 60 * 1000)
+  if (millis() - timer1 >= Boff * 1000)
     analogWrite(BGL, 0);
   if (!G_t)
     Sec = Sec + 1;

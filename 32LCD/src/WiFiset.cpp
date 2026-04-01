@@ -2,8 +2,10 @@
 
 // WIFI列表
 /////////////////////////////////////////
-const char *ssid[] = {""};
-const char *pwd[] = {""};
+// const char* ssid = "H4749";
+// const char* pwd = "18807724749";
+const char *ssid[] = {"Xiaomi Civi 4 Pro"};
+const char *pwd[] = {"k9qb1600"};
 /////////////////////////////////////////
 
 //
@@ -83,18 +85,21 @@ void WIFIconnect()
             if (a)
             {
                 WiFi.disconnect();
+                WiFi.mode(WIFI_OFF);
             }
-            WiFi.mode(WIFI_OFF);
             a = c = d = 0;
             swclr();
             setCpuFrequencyMhz(80);
-            break;
+            Serial.end();
+            return;
         }
         else if (Button)
         {
+            a = c = d = 0;
             swclr();
             setCpuFrequencyMhz(80);
-            break;
+            Serial.end();
+            return;
         }
     }
     setCpuFrequencyMhz(80);

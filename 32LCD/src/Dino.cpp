@@ -18,7 +18,7 @@ int indexca = 0;
 const int groundY = 56;
 int cloud1X = 40;
 int cloud2X = 100;
-const int cloudY1 = 8;
+const int cloudY1 = 3;
 const int cloudY2 = 15;
 
 int widthC[4] = {8, 26, 17, 12};

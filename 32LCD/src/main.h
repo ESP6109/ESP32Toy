@@ -1,13 +1,18 @@
 // ESP32_LCD_GPS_Project
 // Start at 2024.11.21 16:19:16
-// Build Version 5.1.5
+// Build Version 5.1.9
 // Building
-// Release at 2026.03.29 19:35
+// Release at 2026.04.01 19:56
+
+#ifndef main_h
+#define main_h
+
 #include <Arduino.h>
 #include <esp32-hal-cpu.h>
 #include <driver/gpio.h>
 #include <Freertos/Freertos.h>
 
+#include "Backlight.h"
 #include "BuSw.h"
 #include "Clock.h"
 #include "DaTi.h"
@@ -29,7 +34,7 @@ extern int menuicon[][4];
 
 // 设置图标
 /////////////////////////////////////////
-extern int settingsicons[][2];
+extern int settingsicons[][3];
 /////////////////////////////////////////
 
 //
@@ -53,3 +58,5 @@ void power();
 void setup();
 void loop();
 /////////////////////////////////////////
+
+#endif
