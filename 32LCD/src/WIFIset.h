@@ -10,8 +10,6 @@
 
 // WIFI列表
 /////////////////////////////////////////
-// const char* ssid = "H4749";
-// const char* pwd = "18807724749";
 const char *ssid[] = {"Xiaomi Civi 4 Pro"};
 const char *pwd[] = {"k9qb1600"};
 /////////////////////////////////////////
