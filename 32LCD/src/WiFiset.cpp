@@ -1,17 +1,32 @@
 #include "WiFiset.h"
 
-// WIFI列表
+ 
+
+//
 /////////////////////////////////////////
-const char *ssid[] = {""};
-const char *pwd[] = {""};
+int wifiicons[2] = {0, 15};
+int wifichsicons[2] = {22, 12};
 /////////////////////////////////////////
 
 //
 /////////////////////////////////////////
-int wifiicons[2] = {64, 197};
-/////////////////////////////////////////
+void WIFIchs(int *i)
+{
+    while (!Middle || !Button)
+    {
+        u8g2.clearBuffer();
+        wheel(&*i);
+        if (*i >= 2 || *i <= -1)
+        {
+            *i = (*i + 2) % 2;
+        }
 
-void WIFIconnect();
+        list1x2(*i, wifichsicons);
+        u8g2.sendBuffer();
+    }
+    swclr();
+}
+/////////////////////////////////////////
 
 // WIFI连接
 /////////////////////////////////////////
@@ -19,23 +34,52 @@ void WIFIconnect()
 {
     static int a = 0, c = 0;
     int d = 0;
-    int t = 0;
-    Serial.begin(115200);
+    int t = 0, i = 0;
+    if (WiFi.status() != WL_CONNECTED)
+    {
+        while (!Middle /*|| !Button*/)
+        {
+            u8g2.clearBuffer();
+            wheel(&i);
+            if (i >= 2 || i <= -1)
+            {
+                i = (i + 2) % 2;
+            }
+
+            list1x2(i, wifichsicons);
+            u8g2.sendBuffer();
+            if (Button)
+            {
+                swclr();
+                setCpuFrequencyMhz(80);
+                return;
+            }
+        }
+        swclr();
+    }
     setCpuFrequencyMhz(160);
     swclr();
-    t = millis();
     WiFi.mode(WIFI_MODE_STA);
+    t = millis();
+    if (WiFi.status() != WL_CONNECTED)
+    {
+        u8g2.clearBuffer();
+        u8g2.drawXBMP(56, 24, 16, 16, OpenIcons2x[27]);
+        u8g2.setFont(u8g2_font_helvB12_te);
+        u8g2.setCursor(1, 14);
+        u8g2.println(ssid[i]);
+        u8g2.sendBuffer();
+        WiFi.begin(ssid[i], pwd[i]);
+        delay(150);
+    }
     while (WiFi.status() != WL_CONNECTED)
     {
-        icon(56, 40, 247);
-        // WiFi.scanNetworks();
-        WiFi.begin(ssid[0], pwd[0]);
-        if (WiFi.status() == WL_CONNECTED)
-            break;
-        // Serial.printf("%d-%d\n", WiFi.status(), WiFi.scanNetworks());
+        // u8g2.clearBuffer();
+        // u8g2.drawXBMP(56, 24, 16, 16, OpenIcons2x[27]);
+        // u8g2.sendBuffer();
+        delay(5);
         Serial.printf("%d", WiFi.status());
         Serial.println("");
-        delay(125);
         if (Button)
         {
             swclr();
@@ -45,7 +89,9 @@ void WIFIconnect()
         }
         if (millis() - t >= 15000)
         {
-            icon(56, 40, 283);
+            u8g2.clearBuffer();
+            u8g2.drawXBMP(56, 24, 16, 16, OpenIcons2x[33]);
+            u8g2.sendBuffer();
             delay(400);
             swclr();
             WiFi.mode(WIFI_OFF);
@@ -88,7 +134,7 @@ void WIFIconnect()
             a = c = d = 0;
             swclr();
             setCpuFrequencyMhz(80);
-            Serial.end();
+            // Serial.end();
             return;
         }
         else if (Button)
@@ -96,26 +142,12 @@ void WIFIconnect()
             a = c = d = 0;
             swclr();
             setCpuFrequencyMhz(80);
-            Serial.end();
+            // Serial.end();
             return;
         }
     }
     setCpuFrequencyMhz(80);
-    Serial.end();
+    // Serial.end();
     swclr();
 }
 /////////////////////////////////////////
-
-/*Button = 0;
-Switch = 0;
-switch (c)
-        {
-        case 1:
-            a = c = d = 0;
-            Button = 0;
-            Switch = 0;
-            return;
-        case 2:
-
-
-setCpuFrequencyMhz(80);*/

@@ -23,7 +23,7 @@ int Date[3][3] =
 
 // 天气图标
 /////////////////////////////////////////
-int weathericons[5] = {259, 223, 127, 124, 241}; // 日晴 夜晴 阴 多云 雨
+int weathericons[5] = {29, 19, 6, 8, 25}; // 日晴 夜晴 阴 多云 雨
 int IcCo[3][3] =
     {{0, 0, 0},
      {0, 0, 0},
@@ -60,8 +60,10 @@ void weather()
   }
   else if (!w && WiFi.status() != WL_CONNECTED)
   {
-    icon(56, 40, 283);
-    delay(500);
+    u8g2.clearBuffer();
+    u8g2.drawXBMP(56, 24, 16, 16, OpenIcons2x[33]);
+    u8g2.sendBuffer();
+    delay(400);
   }
   swclr();
   int i = 0;
@@ -82,8 +84,10 @@ void weather()
     }
     else if (Middle && (WiFi.status() != WL_CONNECTED))
     {
-      icon(56, 40, 283);
-      delay(500);
+      u8g2.clearBuffer();
+      u8g2.drawXBMP(56, 24, 16, 16, OpenIcons2x[33]);
+      u8g2.sendBuffer();
+      delay(400);
       swclr();
     }
     wheel(&i);
@@ -102,8 +106,6 @@ void weadisplay(int s)
   u8g2.enableUTF8Print();
   weaicons(s, 0);
   u8g2.clearBuffer();
-  u8g2.setFont(u8g2_font_open_iconic_all_4x_t);
-  u8g2.drawGlyph(48, 32, Icon[s][0]);
   u8g2.setFont(u8g2_font_helvB12_te);
 
   if (MaxT[s][0] <= -10)
@@ -125,6 +127,8 @@ void weadisplay(int s)
   else
     u8g2.setCursor(91, 30);
   u8g2.printf("%d°C", MinT[s][0]); // MinT
+
+  u8g2.drawXBMP(48, 0, 32, 32, OpenIcons4x[Icon[s][0]]); // Icon
 
   if (Tem[s] <= -10)
     u8g2.setCursor(1, 14);
@@ -173,8 +177,7 @@ void weadisplay(int s)
     u8g2.printf("%02d", Date[s][i]); // Date
 
     u8g2.setDrawColor(1);
-    u8g2.setFont(u8g2_font_open_iconic_all_2x_t);
-    u8g2.drawGlyph(-56 + i * 66, 64, Icon[s][i]); // Icon
+    u8g2.drawXBMP(-56 + i * 66, 48, 16, 16, OpenIcons2x[Icon[s][i]]); // Icon
   }
   u8g2.drawXBMP(59, 35, 12, 26, City[s]); // City
   u8g2.sendBuffer();
@@ -213,7 +216,9 @@ void weaicons(int i, int j)
 void WeatherNow(int i)
 {
   delay(10);
-  icon(56, 40, 125);
+  u8g2.clearBuffer();
+  u8g2.drawXBMP(56, 24, 16, 16, OpenIcons2x[7]);
+  u8g2.sendBuffer();
   HTTPClient http;
   http.begin(weanow[i]);
   http.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36");
@@ -230,14 +235,18 @@ void WeatherNow(int i)
       String ico0 = doc["results"][0]["now"]["code"];
       Tem[i] = atoi(tem.c_str());
       IcCo[i][0] = atoi(ico0.c_str());
-      icon(56, 40, 115);
       Wup = 1;
+      u8g2.clearBuffer();
+      u8g2.drawXBMP(56, 24, 16, 16, OpenIcons2x[4]);
+      u8g2.sendBuffer();
       delay(400);
     }
   }
   else
   {
-    icon(56, 40, 283);
+    u8g2.clearBuffer();
+    u8g2.drawXBMP(56, 24, 16, 16, OpenIcons2x[33]);
+    u8g2.sendBuffer();
     delay(400);
   }
   swclr();
@@ -251,7 +260,9 @@ void WeatherNow(int i)
 void WeatherDaily(int i)
 {
   delay(10);
-  icon(56, 40, 125);
+  u8g2.clearBuffer();
+  u8g2.drawXBMP(56, 24, 16, 16, OpenIcons2x[7]);
+  u8g2.sendBuffer();
   HTTPClient http;
   http.begin(weadaily[i]);
   http.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36");
@@ -278,13 +289,17 @@ void WeatherDaily(int i)
         IcCo[i][j] = atoi(ico.c_str());
         Date[i][j] = (dat[8] - 48) * 10 + (dat[9] - 48);
       }
-      icon(56, 40, 115);
+      u8g2.clearBuffer();
+      u8g2.drawXBMP(56, 24, 16, 16, OpenIcons2x[4]);
+      u8g2.sendBuffer();
       delay(400);
     }
   }
   else
   {
-    icon(56, 40, 283);
+    u8g2.clearBuffer();
+    u8g2.drawXBMP(56, 24, 16, 16, OpenIcons2x[33]);
+    u8g2.sendBuffer();
     delay(400);
   }
   swclr();
@@ -292,18 +307,3 @@ void WeatherDaily(int i)
   doc.clear();
 }
 /////////////////////////////////////////
-
-// Switch  = 0;
-// Button  = 0;
-/*int MaxT1 = 0, MinT1 = 0;
-int MaxT2 = 0, MinT2 = 0;*/
-// u8g2.clearBuffer();
-// u8g2.setFont(u8g2_font_open_iconic_all_2x_t);
-// u8g2.drawGlyph(53, 24, 247);
-// u8g2.sendBuffer();
-/*if (Date[0] <= 9)
-  u8g2.setCursor(18, 14);
-else*/
-/*if (Date[1] <= 9)
-  u8g2.setCursor(80, 14);
-else*/

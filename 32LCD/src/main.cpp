@@ -1,23 +1,23 @@
 // ESP32_LCD_GPS_Project
 // Start at 2024.11.21 16:19:16
-// Build Version 5.1.9
+// Build Version 5.2.5
 // Building
-// Release at 2026.04.01 19:56
+// Release at 2026.09.22 23:01
 
 #include "main.h"
 
 // 主界面图标
 /////////////////////////////////////////
 int menuicons[2][4] =
-    {{124, 209, 93, 129},
-     {240, 225, 141, 235}};
+    {{6, 17, 2, 9},
+     {30, 21, 11, 23}};
 /////////////////////////////////////////
 
 // 设置图标
 /////////////////////////////////////////
 int settingsicons[2][3] =
-    {{247, 94, 123},
-     {196, 92, 188}};
+    {{27, 3, 5},
+     {14, 1, 13}};
 /////////////////////////////////////////
 
 /////////////////////////////////////////
@@ -25,7 +25,7 @@ void getdht(void *pvParameters)
 {
   while (1)
   {
-    vTaskDelay(2500);
+    vTaskDelay(DHTdelay * 1000);
     TemDH = Dht.getHumidity();
     TemDT = Dht.getTemperature();
     if (!(isnan(TemDT) || isnan(TemDH) || TemDH > 100 || TemDH < 0))
@@ -33,6 +33,20 @@ void getdht(void *pvParameters)
       DHum = TemDH;
       DTem = TemDT;
     }
+    if (!DhtFlag)
+    {
+      MinHum = MaxHum = DHum;
+      MinTem = MaxTem = DTem;
+      DhtFlag=1;
+    }
+    if (DHum > MaxHum)
+      MaxHum = DHum;
+    if (DHum < MinHum)
+      MinHum = DHum;
+    if (DTem > MaxTem)
+      MaxTem = DTem;
+    if (DTem < MinTem)
+      MinTem = DTem;
   }
 }
 /////////////////////////////////////////
@@ -41,7 +55,9 @@ void getdht(void *pvParameters)
 /////////////////////////////////////////
 void setup()
 {
+  // Serial.begin(115200);
   Dht.setup(DhtPin, DHTesp::DHT22);
+  // esp_log_set_vprintf(vprintf);
   u8g2.begin();
   u8g2.enableUTF8Print();
   pinMode(LED, OUTPUT);
@@ -60,10 +76,10 @@ void setup()
   esp_timer.attach(1.0, SecCou);
   xTaskCreate(getdht,
               "DHTdata",
-              16384,
+              512,
               NULL,
-              3,
-              NULL);
+              1,
+              DHTTask);
   timer1 = timer2 = millis();
   analogWrite(BGL, Lumi);
   digitalWrite(LED, 1);
@@ -109,8 +125,7 @@ void home()
     else
       u8g2.setCursor(1, 62);
     u8g2.printf("%d %%", Hum[0]); // Hum
-    u8g2.setFont(u8g2_font_open_iconic_all_2x_t);
-    u8g2.drawGlyph(56, 64, Icon[0][0]);
+    u8g2.drawXBMP(56, 48, 16, 16, OpenIcons2x[Icon[0][0]]);
   }
   else
   {
@@ -128,7 +143,7 @@ void home()
     else
       u8g2.setCursor(1, 62);
     u8g2.printf("%d.%d %%", int(DHum), abs(int(DHum * 10) % 10));
-    u8g2.drawXBMP(56, 48, 16, 16, Therm);
+    u8g2.drawXBMP(56, 48, 16, 16, OpenIcons2x[30]);
   }
   u8g2.setFont(u8g2_font_helvB24_te);
   u8g2.setCursor(-1, 44);
@@ -165,18 +180,20 @@ void menu()
       case 2:
         gps();
         break;
-        // case 3:
-        // timerset();
-        // break;
+      case 3:
+        timerset();
+        break;
       case 4:
         settings();
         break;
-      // case 5:
-      // lab();
-      // break;
+      case 5:
+        // vTaskSuspend(DHTTask);
+        HTdata();
+        // vTaskResume(DHTTask);
+        break;
       case 7:
         // manager();
-        dino();
+        dashboard();
         break;
       case 8:
         power();
@@ -270,38 +287,38 @@ void lab()
     {
     case 'L':
     {
-      u8g2.drawRBox(27, 22, 22, 20, 1);
-      u8g2.setCursor(28, 40);
+      u8g2.drawRBox(27, 38, 22, 20, 1);
+      u8g2.setCursor(28, 56);
       u8g2.setDrawColor(0);
       u8g2.printf("LL");
       u8g2.setDrawColor(1);
-      u8g2.setCursor(54, 40);
+      u8g2.setCursor(54, 56);
       u8g2.printf("MM");
-      u8g2.setCursor(80, 40);
+      u8g2.setCursor(80, 56);
       u8g2.printf("RR");
       break;
     }
     case 'M':
     {
-      u8g2.setCursor(28, 40);
+      u8g2.setCursor(28, 56);
       u8g2.printf("LL");
-      u8g2.drawRBox(53, 22, 22, 20, 1);
-      u8g2.setCursor(54, 40);
+      u8g2.drawRBox(53, 38, 22, 20, 1);
+      u8g2.setCursor(54, 56);
       u8g2.setDrawColor(0);
       u8g2.printf("MM");
       u8g2.setDrawColor(1);
-      u8g2.setCursor(80, 40);
+      u8g2.setCursor(80, 56);
       u8g2.printf("RR");
       break;
     }
     case 'R':
     {
-      u8g2.setCursor(28, 40);
+      u8g2.setCursor(28, 56);
       u8g2.printf("LL");
-      u8g2.setCursor(54, 40);
+      u8g2.setCursor(54, 56);
       u8g2.printf("MM");
-      u8g2.drawRBox(79, 22, 22, 20, 1);
-      u8g2.setCursor(80, 40);
+      u8g2.drawRBox(79, 38, 22, 20, 1);
+      u8g2.setCursor(80, 56);
       u8g2.setDrawColor(0);
       u8g2.printf("RR");
       u8g2.setDrawColor(1);
@@ -309,14 +326,25 @@ void lab()
     }
     default:
     {
-      u8g2.setCursor(28, 40);
+      u8g2.setCursor(28, 56);
       u8g2.printf("LL");
-      u8g2.setCursor(54, 40);
+      u8g2.setCursor(54, 56);
       u8g2.printf("MM");
-      u8g2.setCursor(80, 40);
+      u8g2.setCursor(80, 56);
       u8g2.printf("RR");
     }
     }
+    u8g2.setCursor(28, 24);
+    u8g2.printf("%02d", millis() / 1000 / 3600);
+    u8g2.setDrawColor(1);
+    u8g2.setCursor(54, 24);
+    u8g2.printf("%02d", millis() / 1000 / 60 % 60);
+    u8g2.setCursor(80, 24);
+    u8g2.printf("%02d", millis() / 1000 % 60);
+    u8g2.setCursor(48, 24);
+    u8g2.printf(":");
+    u8g2.setCursor(74, 24);
+    u8g2.printf(":");
     u8g2.sendBuffer();
   }
   swclr();
@@ -340,7 +368,7 @@ void esp_info()
     u8g2.setCursor(4, 22);
     u8g2.printf("Espressif Tech.");
     u8g2.setCursor(14, 54);
-    u8g2.printf("Version 5.1.9");
+    u8g2.printf("Version 5.2.5");
     u8g2.sendBuffer();
   }
   swclr();
@@ -353,7 +381,10 @@ void building()
 {
   while (!Button)
   {
-    icon(56, 40, 282);
+    // icon(56, 40, 282);
+    u8g2.clearBuffer();
+    u8g2.drawXBMP(56, 24, 16, 16, OpenIcons2x[31]);
+    u8g2.sendBuffer();
   }
   swclr();
 }
@@ -430,46 +461,3 @@ void power()
   swclr();
 }
 /////////////////////////////////////////
-
-/*while (Left)
-{
-  a--;
-  // *i += 4;
-  // *i %= 5;
-  Left = 0;
-}
-Left = 0;
-while (Right)
-{
-  a++;
-  // *i %= 5;
-  Right = 0;
-}
-Right = 0;*/
-/*#include <Arduino.h>
-#include "esp32-hal-cpu.h"
-#include <driver/gpio.h>
-
-#include "BuSw.h"
-#include "Clock.h"
-#include "DaTi.h"
-#include "GPS.h"
-#include "Joy.h"
-#include "Joystick.h"
-#include "LCD.h"
-#include "Power.h"
-#include "Weather.h"
-#include "WIFIset.h"*/
-/*
-// 定义
-/////////////////////////////////////////
-void home();
-void menu();
-void weather();
-void settings();
-void lab();
-void esp_info();
-void building();
-void manager();
-void power();
-/////////////////////////////////////////*/

@@ -4,6 +4,20 @@
 // Building
 // Release at 2026.04.01 19:56
 
+// #define ARDUINO_USB_MODE 1
+
+// #define ARDUINO_USB_CDC_ON_BOOT 1
+// #define USE_ESP_IDF_LOG 1
+// #include "esp_log.h"
+// const char *TAG = "MAIN";
+
+// #if !define CORE_DEBUG_LEVEL
+// #define CORE_DEBUG_LEVEL 5
+// #endif
+// #if !define ARDUHAL_LOG_LEVEL
+// #define ARDUHAL_LOG_LEVEL 5
+// #endif
+
 #ifndef main_h
 #define main_h
 
@@ -15,6 +29,7 @@
 #include "Backlight.h"
 #include "BuSw.h"
 #include "Clock.h"
+#include "Dashboard.h"
 #include "DaTi.h"
 #include "DHTdata.h"
 #include "Dino.h"
